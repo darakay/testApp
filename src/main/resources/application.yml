@@ -1,8 +1,23 @@
 spring:
+  profiles:
+    active: dev
+---
+spring:
+  profiles: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/test
+      url: jdbc:mysql://localhost:3306/test
+      username: root
+      password: qwerty
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.xml
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://0.0.0.0:33060/test
     username: root
-    password: qwerty
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
   liquibase:
     change-log: classpath:db/changelog/changelog-master.xml
