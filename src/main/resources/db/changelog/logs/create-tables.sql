@@ -1,7 +1,3 @@
-CREATE DATABASE bank;
-
-USE bank;
-
 CREATE TABLE `user` (
                         `id` bigint NOT NULL AUTO_INCREMENT,
                         `first_name` varchar(20) NOT NULL,
@@ -13,7 +9,7 @@ CREATE TABLE `user` (
 CREATE TABLE `account` (
                            `id` bigint NOT NULL AUTO_INCREMENT,
                            `sum` double NOT NULL,
-                           `tarif_id` bigint NOT NULL,
+                           `tariff_id` bigint NOT NULL,
                            PRIMARY KEY (`id`)
 );
 
@@ -24,21 +20,21 @@ CREATE TABLE `card` (
                         PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `tarif` (
-                         `id` bigint NOT NULL AUTO_INCREMENT,
-                         `name` varchar(50) NOT NULL,
-                         `type` varchar(20) NOT NULL,
-                         `rate` double NOT NULL UNIQUE,
-                         `owner_limit` double NOT NULL,
-                         `user_limit` double NOT NULL,
-                         PRIMARY KEY (`id`)
+CREATE TABLE `tariff` (
+                          `id` bigint NOT NULL AUTO_INCREMENT,
+                          `name` varchar(50) NOT NULL,
+                          `type` varchar(20) NOT NULL,
+                          `rate` double NOT NULL UNIQUE,
+                          `owner_limit` double NOT NULL,
+                          `user_limit` double NOT NULL,
+                          PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `account_to_user` (
-                                   `user_id` bigint NOT NULL,
-                                   `account_id` bigint NOT NULL,
-                                   `status` varchar(20) NOT NULL,
-                                   PRIMARY KEY (`user_id`,`account_id`)
+CREATE TABLE `user_account` (
+                                `user_id` bigint NOT NULL,
+                                `account_id` bigint NOT NULL,
+                                `status` varchar(20) NOT NULL,
+                                PRIMARY KEY (`user_id`,`account_id`)
 );
 
 CREATE TABLE `transaction` (
@@ -50,15 +46,15 @@ CREATE TABLE `transaction` (
                                PRIMARY KEY (`id`)
 );
 
-ALTER TABLE `account` ADD CONSTRAINT `account_fk0` FOREIGN KEY (`tarif_id`) REFERENCES `tarif`(`id`);
+ALTER TABLE `account` ADD CONSTRAINT `account_fk0` FOREIGN KEY (`tariff_id`) REFERENCES `tariff`(`id`);
 
 ALTER TABLE `card` ADD CONSTRAINT `card_fk0` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);
 
 ALTER TABLE `card` ADD CONSTRAINT `card_fk1` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`);
 
-ALTER TABLE `account_to_user` ADD CONSTRAINT `account_to_user_fk0` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`);
+ALTER TABLE `user_account` ADD CONSTRAINT `user_account_fk0` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`);
 
-ALTER TABLE `account_to_user` ADD CONSTRAINT `account_to_user_fk1` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);
+ALTER TABLE `user_account` ADD CONSTRAINT `user_account_fk1` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);
 
 ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk0` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`);
 

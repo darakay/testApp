@@ -1,6 +1,8 @@
 spring:
   profiles:
     active: dev
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.xml
 ---
 spring:
   profiles: dev
@@ -9,8 +11,7 @@ spring:
       username: root
       password: qwerty
       driver-class-name: com.mysql.cj.jdbc.Driver
-  liquibase:
-    change-log: classpath:db/changelog/changelog-master.xml
+
 ---
 spring:
   profiles: test
@@ -20,4 +21,5 @@ spring:
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
   liquibase:
-    change-log: classpath:db/changelog/changelog-master.xml
+    contexts: test
+

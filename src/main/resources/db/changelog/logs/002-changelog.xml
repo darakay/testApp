@@ -4,14 +4,12 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
-    <changeSet id="1" author="darakay">
-        <sqlFile dbms="mysql"
-                 encoding="utf8"
-                 endDelimiter=";"
-                 path="create-tables.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="true"
-                 stripComments="true"/>
+    <changeSet id="add-test-account" author="darakay" context="test">
+        <insert tableName="account">
+            <column name="id" value="1"/>
+            <column name="sum" value="0"/>
+            <column name="tariff_id" value="1"/>
+        </insert>
     </changeSet>
 
 </databaseChangeLog>
