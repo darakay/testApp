@@ -7,5 +7,8 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
     <include file="classpath:db/changelog/logs/000-initial-schema.xml"/>
     <include file="classpath:db/changelog/logs/001-changelog.xml"/>
+    <include file="classpath:db/changelog/logs/003-changelog.xml"/>
     <include file="classpath:db/changelog/logs/002-changelog.xml"/>
+    <include file="classpath:db/changelog/logs/004-changelog.xml"/>
+    <include file="classpath:db/changelog/logs/005-changelog.xml"/>
 </databaseChangeLog>

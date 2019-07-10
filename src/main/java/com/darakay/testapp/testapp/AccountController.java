@@ -1,16 +1,16 @@
 package com.darakay.testapp.testapp;
 
-import com.darakay.testapp.testapp.account.AccountRepository;
-import com.darakay.testapp.testapp.tariff.Tariff;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import com.darakay.testapp.testapp.dto.UserDto;
+import com.darakay.testapp.testapp.entity.Account;
+import com.darakay.testapp.testapp.entity.Tariff;
+import com.darakay.testapp.testapp.exception.AccountNotFoundException;
+import com.darakay.testapp.testapp.repos.AccountRepository;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.NoSuchElementException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/accounts")
@@ -29,5 +29,32 @@ public class AccountController {
                         .findById(accountId)
                         .orElseThrow(ResourceNotFoundException::new)
                         .getTariff());
+    }
+
+    @GetMapping("/{accountId}/users")
+    public ResponseEntity<List<UserDto>> getAccountUser(@PathVariable long accountId) throws AccountNotFoundException {
+        Account account = accountRepository
+                .findById(accountId)
+                .orElseThrow(AccountNotFoundException::new);
+        List<UserDto> accountUsers = account.getUsers().stream().map(UserDto::fromEntity).collect(Collectors.toList());
+        return ResponseEntity
+                .ok(accountUsers);
+    }
+
+    @GetMapping("/{accountId}/owner")
+    public ResponseEntity<UserDto> getAccountOwner(@PathVariable long accountId) throws AccountNotFoundException {
+        Account account = accountRepository
+                .findById(accountId)
+                .orElseThrow(AccountNotFoundException::new);
+        return ResponseEntity.ok(UserDto.fromEntity(account.getOwner()));
+    }
+
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<?> closeAccount(@PathVariable long accountId) throws AccountNotFoundException {
+        Account account = accountRepository
+                .findById(accountId)
+                .orElseThrow(AccountNotFoundException::new);
+        accountRepository.delete(account);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,0 +1,20 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+    <changeSet id="add-user-account-records" author="darakay" context="test">
+        <insert tableName="user_account">
+            <column name="user_id" value="2000"/>
+            <column name="account_id" value="1"/>
+        </insert>
+        <insert tableName="user_account">
+            <column name="user_id" value="3000"/>
+            <column name="account_id" value="1"/>
+        </insert>
+        <insert tableName="user_account">
+        <column name="user_id" value="4000"/>
+        <column name="account_id" value="1"/>
+    </insert>
+    </changeSet>
+
+</databaseChangeLog>

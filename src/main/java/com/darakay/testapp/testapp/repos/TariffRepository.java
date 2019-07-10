@@ -1,5 +1,6 @@
-package com.darakay.testapp.testapp.tariff;
+package com.darakay.testapp.testapp.repos;
 
+import com.darakay.testapp.testapp.entity.Tariff;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

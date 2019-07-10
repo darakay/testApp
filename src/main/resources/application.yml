@@ -1,6 +1,11 @@
 spring:
   profiles:
     active: dev
+  jpa:
+    properties:
+      hibernate:
+        id:
+          new_generator_mappings: false
   liquibase:
     change-log: classpath:db/changelog/changelog-master.xml
 ---

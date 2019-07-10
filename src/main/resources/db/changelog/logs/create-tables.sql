@@ -9,7 +9,8 @@ CREATE TABLE `user` (
 CREATE TABLE `account` (
                            `id` bigint NOT NULL AUTO_INCREMENT,
                            `sum` double NOT NULL,
-                           `tariff_id` bigint NOT NULL,
+                           `tariff_name` varchar(50) NOT NULL,
+                           `owner_id` bigint,
                            PRIMARY KEY (`id`)
 );
 
@@ -21,19 +22,17 @@ CREATE TABLE `card` (
 );
 
 CREATE TABLE `tariff` (
-                          `id` bigint NOT NULL AUTO_INCREMENT,
                           `name` varchar(50) NOT NULL,
                           `type` varchar(20) NOT NULL,
                           `rate` double NOT NULL UNIQUE,
                           `owner_limit` double NOT NULL,
                           `user_limit` double NOT NULL,
-                          PRIMARY KEY (`id`)
+                          PRIMARY KEY (`name`)
 );
 
 CREATE TABLE `user_account` (
                                 `user_id` bigint NOT NULL,
                                 `account_id` bigint NOT NULL,
-                                `status` varchar(20) NOT NULL,
                                 PRIMARY KEY (`user_id`,`account_id`)
 );
 
@@ -43,10 +42,13 @@ CREATE TABLE `transaction` (
                                `account_id` bigint NOT NULL,
                                `recipient_id` bigint NOT NULL,
                                `sum` double NOT NULL,
+                               `type` varchar(20) NOT NULL,
                                PRIMARY KEY (`id`)
 );
 
-ALTER TABLE `account` ADD CONSTRAINT `account_fk0` FOREIGN KEY (`tariff_id`) REFERENCES `tariff`(`id`);
+ALTER TABLE `account` ADD CONSTRAINT `account_fk0` FOREIGN KEY (`tariff_name`) REFERENCES `tariff`(`name`);
+
+ALTER TABLE `account` ADD CONSTRAINT `account_fk1` FOREIGN KEY (`owner_id`) REFERENCES `user`(`id`);
 
 ALTER TABLE `card` ADD CONSTRAINT `card_fk0` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);
 

@@ -1,5 +1,6 @@
-package com.darakay.testapp.testapp.account;
+package com.darakay.testapp.testapp.repos;
 
+import com.darakay.testapp.testapp.entity.Account;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,27 +1,16 @@
-package com.darakay.testapp.testapp.tariff;
+package com.darakay.testapp.testapp.entity;
 
 
-import com.darakay.testapp.testapp.account.Account;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @EqualsAndHashCode
-@ToString
 @Entity
 public class Tariff {
-    @Getter
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @OneToMany(mappedBy = "tariff")
-    private Set<Account> accounts = new HashSet<>();
-
     @Getter
     private String name;
 
@@ -37,8 +26,7 @@ public class Tariff {
     @Getter
     private double userLimit;
 
-    public Tariff(long id, String name, String type, double rate, double ownerLimit, double userLimit) {
-        this.id = id;
+    public Tariff(String name, String type, double rate, double ownerLimit, double userLimit) {
         this.name = name;
         this.type = type;
         this.rate = rate;
@@ -48,4 +36,5 @@ public class Tariff {
 
     public Tariff() {
     }
+
 }
