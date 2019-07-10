@@ -1,24 +1,26 @@
-package com.darakay.testapp.testapp.user;
+package com.darakay.testapp.testapp.entity;
 
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@ToString
-@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     private long id;
+
+    @Getter
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_account",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "account_id"))
+    private Set<Account> accounts = new HashSet<>();
 
     @Getter
     private String firstName;
@@ -36,5 +38,10 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
+    }
+
+
+    public void addAccounts(Account account) {
+        this.accounts.add(account);
     }
 }
