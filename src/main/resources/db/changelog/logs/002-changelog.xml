@@ -7,7 +7,7 @@
     <changeSet id="add-test-account" author="darakay" context="test">
         <insert tableName="account">
             <column name="id" value="1"/>
-            <column name="sum" value="0"/>
+            <column name="sum" value="50"/>
             <column name="tariff_name" value="plain"/>
             <column name="owner_id" value="1000"/>
         </insert>

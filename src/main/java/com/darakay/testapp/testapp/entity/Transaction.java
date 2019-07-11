@@ -55,4 +55,7 @@ public class Transaction {
         this.sum = sum;
         this.type = type;
     }
+
+    public Transaction() {
+    }
 }

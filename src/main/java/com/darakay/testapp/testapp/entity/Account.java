@@ -51,6 +51,7 @@ public class Account {
     }
 
     public Account changeSum(double sum) {
-        return new Account(this.getId(), this.sum + sum, this.users, this.getTariff(), this.owner);
+        this.sum += sum;
+        return this;
     }
 }

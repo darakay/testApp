@@ -4,12 +4,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
     <changeSet id="add-test-users" author="darakay" context="test">
         <insert tableName="user">
-            <column name="id" value="2000"/>
-            <column name="first_name" value="AccountUser1"/>
-            <column name="last_name" value=""/>
-            <column name="password" value="qwerty"/>
-        </insert>
-        <insert tableName="user">
             <column name="id" value="3000"/>
             <column name="first_name" value="AccountUser2"/>
             <column name="last_name" value=""/>

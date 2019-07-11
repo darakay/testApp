@@ -36,7 +36,7 @@ public class TransactionService {
                 .findById(transactionDto.getTargetId())
                 .orElseThrow(AccountNotFoundException::new);
         if(!isCorrectSum(user, transactionDto))
-            return TransactionResult.invalidSum();
+            return TransactionResult.invalidSum(transactionDto.getSum());
 
         Transaction transaction = performTransaction(user, source, target, transactionDto.getSum());
         return TransactionResult.ok(transactionRepository.save(transaction));
@@ -45,11 +45,11 @@ public class TransactionService {
 
     private boolean isCorrectSum(User user, TransactionDto transactionDto) throws AccountNotFoundException, UserNotFoundException {
         Account source = accountRepository.findById(transactionDto.getSourceId()).orElseThrow(AccountNotFoundException::new);
-        return transactionDto.getSum() < 0 &&  transactionDto.getSum() <= source.getSum() &&
+        return transactionDto.getSum() > 0 &&  transactionDto.getSum() <= source.getSum() &&
                 isCorrectSumForUser(user, source, transactionDto.getSum());
     }
 
-    private boolean isCorrectSumForUser(User user, Account account, double sum) throws UserNotFoundException {
+    private boolean isCorrectSumForUser(User user, Account account, double sum) {
         if(account.getOwner().equals(user))
             return sum <= account.getTariff().getOwnerLimit();
         if(account.getUsers().contains(user))

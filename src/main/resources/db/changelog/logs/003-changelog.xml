@@ -11,6 +11,12 @@
             <column name="last_name" value=""/>
             <column name="password" value="qwerty"/>
         </insert>
+        <insert tableName="user">
+            <column name="id" value="2000"/>
+            <column name="first_name" value="AccountUser1"/>
+            <column name="last_name" value=""/>
+            <column name="password" value="qwerty"/>
+        </insert>
     </changeSet>
 
 </databaseChangeLog>

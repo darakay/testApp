@@ -43,6 +43,8 @@ CREATE TABLE `transaction` (
                                `recipient_id` bigint NOT NULL,
                                `sum` double NOT NULL,
                                `type` varchar(20) NOT NULL,
+                               `date` date not null ,
+                               `time` time not null,
                                PRIMARY KEY (`id`)
 );
 
