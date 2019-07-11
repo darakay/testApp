@@ -1,6 +1,8 @@
 package com.darakay.testapp.testapp.service;
 
 import com.darakay.testapp.testapp.dto.TransactionDto;
+import com.darakay.testapp.testapp.dto.TransactionResult;
+import com.darakay.testapp.testapp.dto.UserTransaction;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.entity.Transaction;
 import com.darakay.testapp.testapp.entity.TransactionType;
@@ -10,7 +12,13 @@ import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -36,7 +44,7 @@ public class TransactionService {
                 .findById(transactionDto.getTargetId())
                 .orElseThrow(AccountNotFoundException::new);
         if(!isCorrectSum(user, transactionDto))
-            return TransactionResult.invalidSum(transactionDto.getSum());
+            return TransactionResult.fail("Invalid transaction");
 
         Transaction transaction = performTransaction(user, source, target, transactionDto.getSum());
         return TransactionResult.ok(transactionRepository.save(transaction));
@@ -64,5 +72,25 @@ public class TransactionService {
         return new Transaction(source, target, author, sum, TransactionType.TRANSACTION);
     }
 
+    public List<UserTransaction> getUserTransactionsSortedBy(long uid, String order, Integer limit, Integer offset) throws UserNotFoundException {
+        User user = userRepository.findById(uid).orElseThrow(UserNotFoundException::new);
+        if(limit == null)
+            return getUserTransactionsSortedBy(uid, order);
+        Pageable pageable = PageRequest.of(offset, limit, Sort.Direction.ASC, order);
+        return transactionRepository
+                .findTransactionsByUser(user, pageable)
+                .stream()
+                .map(UserTransaction::fromTransaction)
+                .collect(Collectors.toList());
+    }
 
+    private List<UserTransaction> getUserTransactionsSortedBy(long uid, String order) throws UserNotFoundException {
+        User user = userRepository.findById(uid).orElseThrow(UserNotFoundException::new);
+        Sort sort = new Sort(Sort.Direction.ASC, order);
+        return transactionRepository
+                .findTransactionsByUser(user, sort)
+                .stream()
+                .map(UserTransaction::fromTransaction)
+                .collect(Collectors.toList());
+    }
 }

@@ -1,4 +1,4 @@
-package com.darakay.testapp.testapp.service;
+package com.darakay.testapp.testapp.dto;
 
 import com.darakay.testapp.testapp.entity.Transaction;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -14,6 +14,7 @@ import lombok.ToString;
 public class TransactionResult {
     @JsonProperty("errorMessage")
     private String errorMessage;
+
     @JsonProperty("transactionId")
     @Getter
     private long transactionId;
@@ -21,20 +22,23 @@ public class TransactionResult {
     private TransactionResult(String errorMessage, long transactionId) {
         this.errorMessage = errorMessage;
         this.transactionId = transactionId;
+
     }
 
     public TransactionResult() {}
 
-    static TransactionResult invalidSum(double sum) {
-        return new TransactionResult("Invalid sum", -1);
+    public static TransactionResult fail(String errorMessage) {
+        return new TransactionResult(errorMessage, -1);
     }
 
-    static TransactionResult ok(Transaction savedTransaction) {
-        return new TransactionResult(null, savedTransaction.getId());
+    public static TransactionResult ok(Transaction savedTransaction) {
+        return new TransactionResult(null,
+                savedTransaction.getId());
     }
 
     @JsonIgnore
     public boolean isSuccess(){
         return errorMessage == null;
     }
+
 }

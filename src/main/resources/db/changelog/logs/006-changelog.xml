@@ -1,0 +1,47 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+    <changeSet id="add-transaction-history" author="darakay" context="test">
+        <insert tableName="transaction">
+            <column name="id" value="1"/>
+            <column name="user_id" value="2000"/>
+            <column name="account_id" value="2"/>
+            <column name="recipient_id" value="1"/>
+            <column name="sum" value="2000"/>
+            <column name="type" type="varchar" value="transaction"/>
+            <column name="date" value="2019-07-10"/>
+            <column name="time" value="03:20:32"/>
+        </insert>
+        <insert tableName="transaction">
+            <column name="id" value="2"/>
+            <column name="user_id" value="2000"/>
+            <column name="account_id" value="2"/>
+            <column name="recipient_id" value="1"/>
+            <column name="sum" value="500"/>
+            <column name="type" type="varchar" value="transaction"/>
+            <column name="date" value="2019-07-11"/>
+            <column name="time" value="04:20:32"/>
+        </insert>
+        <insert tableName="transaction">
+            <column name="id" value="3"/>
+            <column name="user_id" value="2000"/>
+            <column name="account_id" value="2"/>
+            <column name="recipient_id" value="1"/>
+            <column name="sum" value="300"/>
+            <column name="type" type="varchar" value="transaction"/>
+            <column name="date" value="2019-07-11"/>
+            <column name="time" value="04:20:32"/>
+        </insert>
+        <insert tableName="transaction">
+            <column name="id" value="4"/>
+            <column name="user_id" value="3000"/>
+            <column name="account_id" value="2"/>
+            <column name="recipient_id" value="1"/>
+            <column name="sum" value="10000"/>
+            <column name="type" type="varchar" value="transaction"/>
+            <column name="date" value="2019-07-11"/>
+            <column name="time" value="05:20:32"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

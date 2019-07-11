@@ -77,9 +77,10 @@ public class AccountControllerTest {
         List<UserDto> actual = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<UserDto>>() {
         });
 
-        assertThat(actual.size()).isEqualTo(4);
+        assertThat(actual.size()).isEqualTo(3);
         assertThat(actual).asList().contains(new UserDto(2000, "AccountUser1", ""),
-                new UserDto(3000, "AccountUser2", ""), new UserDto(4000, "AccountUser3", ""));
+                new UserDto(3000, "AccountUser2", ""),
+                new UserDto(4000, "AccountUser3", ""));
     }
 
     @Test

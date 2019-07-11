@@ -11,4 +11,5 @@
     <include file="classpath:db/changelog/logs/002-changelog.xml"/>
     <include file="classpath:db/changelog/logs/004-changelog.xml"/>
     <include file="classpath:db/changelog/logs/005-changelog.xml"/>
+    <include file="classpath:db/changelog/logs/006-changelog.xml"/>
 </databaseChangeLog>

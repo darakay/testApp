@@ -27,13 +27,13 @@ public class Transaction {
     @Getter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    private User author;
+    private User user;
 
     @Getter
     private double sum;
 
     @Getter
-    private TransactionType type;
+    private String type;
 
     @Getter
     private Time time;
@@ -48,12 +48,12 @@ public class Transaction {
         this.date = new Date(currentTime);
     }
 
-    public Transaction(Account source, Account target, User author, double sum, TransactionType type) {
+    public Transaction(Account source, Account target, User user, double sum, TransactionType type) {
         this.source = source;
         this.target = target;
-        this.author = author;
+        this.user = user;
         this.sum = sum;
-        this.type = type;
+        this.type = type.name();
     }
 
     public Transaction() {
