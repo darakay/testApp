@@ -1,7 +1,6 @@
 package com.darakay.testapp.testapp.entity;
 
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -29,14 +28,18 @@ public class User {
     private String lastName;
 
     @Getter
+    private String login;
+
+    @Getter
     private String password;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String password) {
+    public User(String firstName, String lastName, String login, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.login = login;
         this.password = password;
     }
 

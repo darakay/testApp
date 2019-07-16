@@ -7,12 +7,14 @@
             <column name="id" value="3000"/>
             <column name="first_name" value="AccountUser2"/>
             <column name="last_name" value=""/>
+            <column name="login" value="user3"/>
             <column name="password" value="qwerty"/>
         </insert>
         <insert tableName="user">
             <column name="id" value="4000"/>
             <column name="first_name" value="AccountUser3"/>
             <column name="last_name" value=""/>
+            <column name="login" value="user4"/>
             <column name="password" value="qwerty"/>
         </insert>
     </changeSet>

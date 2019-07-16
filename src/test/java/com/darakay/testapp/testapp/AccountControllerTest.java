@@ -6,7 +6,6 @@ import com.darakay.testapp.testapp.entity.Tariff;
 import com.darakay.testapp.testapp.entity.TariffType;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.repos.AccountRepository;
-import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.service.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -97,7 +95,7 @@ public class AccountControllerTest {
 
     @Test
     public void closeAccount() throws Exception {
-        User user = userService.logUp(new User("first", "last", "111"));
+        User user = userService.logUp(new User("first", "last", "234", "111"));
 
         Account account = userService.createAccountForUser(user.getId(), TariffType.plain());
 

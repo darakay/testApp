@@ -2,6 +2,7 @@ CREATE TABLE `user` (
                         `id` bigint NOT NULL AUTO_INCREMENT,
                         `first_name` varchar(20) NOT NULL,
                         `last_name` varchar(50) NOT NULL,
+                        `login` varchar(50) NOT NULL,
                         `password` varchar(20) NOT NULL,
                         PRIMARY KEY (`id`)
 );

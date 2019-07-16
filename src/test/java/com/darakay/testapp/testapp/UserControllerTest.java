@@ -1,17 +1,15 @@
 package com.darakay.testapp.testapp;
 
 import com.darakay.testapp.testapp.dto.TransactionDto;
+import com.darakay.testapp.testapp.dto.TransactionResult;
 import com.darakay.testapp.testapp.dto.UserTransaction;
 import com.darakay.testapp.testapp.entity.*;
 import com.darakay.testapp.testapp.exception.TransactionNotFountException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
-import com.darakay.testapp.testapp.dto.TransactionResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,6 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -59,7 +56,7 @@ public class UserControllerTest {
 
     @Test
     public void userLogUp() throws Exception {
-        User testUser = new User( "Иван", "Иванов", "111");
+        User testUser = new User( "Иван", "Иванов", "ivan", "111");
 
         MvcResult mvcResult = mockMvc.perform(post(CONTROLLER_URI)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -75,7 +72,7 @@ public class UserControllerTest {
 
     @Test
     public void createUserAccount() throws Exception {
-        User saved = userRepository.save(new User("User", "With account", "111"));
+        User saved = userRepository.save(new User("User", "With account", "user", "111"));
         String uri = String.format(CONTROLLER_URI + "/%s/accounts", saved.getId());
 
         MvcResult result  =
