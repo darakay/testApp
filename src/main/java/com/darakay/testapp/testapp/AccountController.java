@@ -1,60 +1,28 @@
 package com.darakay.testapp.testapp;
 
-import com.darakay.testapp.testapp.dto.UserDto;
+import com.darakay.testapp.testapp.dto.AccountCreateRequestDto;
 import com.darakay.testapp.testapp.entity.Account;
-import com.darakay.testapp.testapp.entity.Tariff;
-import com.darakay.testapp.testapp.exception.AccountNotFoundException;
-import com.darakay.testapp.testapp.repos.AccountRepository;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import com.darakay.testapp.testapp.exception.TariffNotFoundException;
+import com.darakay.testapp.testapp.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 
-    private AccountRepository accountRepository;
+    private final AccountService accountService;
 
-    public AccountController(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
     }
 
-    @GetMapping("/{accountId}/tariff")
-    public ResponseEntity<Tariff> getTariffByAccountId(@PathVariable long accountId){
-        return ResponseEntity.ok()
-                .body(accountRepository
-                        .findById(accountId)
-                        .orElseThrow(ResourceNotFoundException::new)
-                        .getTariff());
-    }
-
-    @GetMapping("/{accountId}/users")
-    public ResponseEntity<List<UserDto>> getAccountUser(@PathVariable long accountId) throws AccountNotFoundException {
-        Account account = accountRepository
-                .findById(accountId)
-                .orElseThrow(AccountNotFoundException::new);
-        List<UserDto> accountUsers = account.getUsers().stream().map(UserDto::fromEntity).collect(Collectors.toList());
-        return ResponseEntity
-                .ok(accountUsers);
-    }
-
-    @GetMapping("/{accountId}/owner")
-    public ResponseEntity<UserDto> getAccountOwner(@PathVariable long accountId) throws AccountNotFoundException {
-        Account account = accountRepository
-                .findById(accountId)
-                .orElseThrow(AccountNotFoundException::new);
-        return ResponseEntity.ok(UserDto.fromEntity(account.getOwner()));
-    }
-
-    @DeleteMapping("/{accountId}")
-    public ResponseEntity<?> closeAccount(@PathVariable long accountId) throws AccountNotFoundException {
-        Account account = accountRepository
-                .findById(accountId)
-                .orElseThrow(AccountNotFoundException::new);
-        accountRepository.delete(account);
-        return ResponseEntity.ok().build();
+    @PostMapping
+    public ResponseEntity createAccount(@RequestBody AccountCreateRequestDto requestDto) throws TariffNotFoundException {
+        Account created = accountService.createAccount(requestDto);
+        return ResponseEntity.created(URI.create("/accounts/" + created.getId())).build();
     }
 }

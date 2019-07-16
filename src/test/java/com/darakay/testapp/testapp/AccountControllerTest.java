@@ -1,5 +1,6 @@
 package com.darakay.testapp.testapp;
 
+import com.darakay.testapp.testapp.dto.AccountCreateRequestDto;
 import com.darakay.testapp.testapp.dto.UserDto;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.entity.Tariff;
@@ -7,6 +8,7 @@ import com.darakay.testapp.testapp.entity.TariffType;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -46,64 +48,31 @@ public class AccountControllerTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void getTariffByAccountId() throws Exception {
-        String uri = CONTROLLER_URL + "/1/tariff";
+    public void createAccount_ShouldAddCreatedAccountAtDatabaseAndReturnCorrectRedirectUri() throws Exception {
+        AccountCreateRequestDto req = AccountCreateRequestDto.builder().tariffName("plain").build();
+        MvcResult result = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(mapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andReturn();
 
-        Tariff expectedTariff = new Tariff("plain", "debit", 0.07, 50000, 30000);
+        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[2]);
 
-        mockMvc.perform(get(uri))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(content().json(mapper.writeValueAsString(expectedTariff)));
+        assertThat(accountRepository.existsById(aid)).isTrue();
     }
 
     @Test
-    public void getTariffByAccountId_shouldReturnNotFound_ThenAccountIdIsNotExist() throws Exception {
-        String uri = CONTROLLER_URL + "/3456/tariff";
 
-        mockMvc.perform(get(uri))
-                .andExpect(status().isNotFound());
-    }
+    public void createAccount_ShouldAddCurrentPrincipalAsAccountOwner() throws Exception {
+        AccountCreateRequestDto req = AccountCreateRequestDto.builder().tariffName("plain").build();
+        MvcResult result = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(mapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andReturn();
 
-    @Test
-    public void getAccountUsers() throws Exception {
-        String uri = CONTROLLER_URL + "/1/users";
+        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[2]);
 
-        MvcResult result = mockMvc.perform(get(uri))
-                .andExpect(status().isOk()).andReturn();
-
-        List<UserDto> actual = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<UserDto>>() {
-        });
-
-        assertThat(actual.size()).isEqualTo(3);
-        assertThat(actual).asList().contains(new UserDto(2000, "AccountUser1", ""),
-                new UserDto(3000, "AccountUser2", ""),
-                new UserDto(4000, "AccountUser3", ""));
-    }
-
-    @Test
-    public void getAccountOwner() throws Exception {
-        String uri = CONTROLLER_URL + "/1/owner";
-
-        MvcResult result = mockMvc.perform(get(uri))
-                .andExpect(status().isOk()).andReturn();
-
-        UserDto actualOwner = mapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
-
-        assertThat(actualOwner).isEqualTo(new UserDto(1000, "AccountOwner", ""));
-    }
-
-    @Test
-    public void closeAccount() throws Exception {
-        User user = userService.logUp(new User("first", "last", "234", "111"));
-
-        Account account = userService.createAccountForUser(user.getId(), TariffType.plain());
-
-        String uri = CONTROLLER_URL + "/" + account.getId();
-
-        mockMvc.perform(delete(uri))
-                .andExpect(status().isOk()).andReturn();
-
-        assertThat(accountRepository.existsById(account.getId())).isFalse();
+        assertThat(accountRepository.findById(aid).get().getOwner().getId()).isEqualTo(1000);
     }
 }
