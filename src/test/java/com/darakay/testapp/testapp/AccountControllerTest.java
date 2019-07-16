@@ -92,7 +92,7 @@ public class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "owner", password = "qwerty")
+    @WithMockUser(username = "user3", password = "qwerty")
     public void deleteAccount_ShouldDeleteAccountById() throws Exception {
         mockMvc.perform(delete("/accounts/3"))
                 .andExpect(status().isNoContent())
@@ -114,7 +114,7 @@ public class AccountControllerTest {
     public void getAccountUsers_ShouldReturnAccountUsers() throws Exception {
        mockMvc.perform(get("/accounts/1/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)));
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class AccountControllerTest {
                 .andExpect(status().isNoContent());
 
         Account account = accountRepository.findById(1L).get();
-        assertThat(account.getUsers().size()).isEqualTo(2);
+        assertThat(account.getUsers().size()).isEqualTo(1);
     }
 
     @Test
