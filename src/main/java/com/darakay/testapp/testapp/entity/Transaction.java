@@ -8,37 +8,31 @@ import java.sql.Date;
 import java.sql.Time;
 
 @Entity
+@Getter
 public class Transaction {
-    @Getter
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Getter
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account source;
 
-    @Getter
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")
     private Account target;
 
-    @Getter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Getter
     private double sum;
 
-    @Getter
     private String type;
 
-    @Getter
     private Time time;
 
-    @Getter
     private Date date;
 
     @PrePersist

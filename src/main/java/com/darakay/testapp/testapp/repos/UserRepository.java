@@ -11,5 +11,5 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @EntityGraph(attributePaths = {"accounts"})
     Optional<User> findById(long id);
 
-    User findByLogin(String login);
+    Optional<User> findByLogin(String login);
 }

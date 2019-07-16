@@ -43,5 +43,15 @@
             <column name="date" value="2019-07-11"/>
             <column name="time" value="05:20:32"/>
         </insert>
+        <insert tableName="transaction">
+            <column name="id" value="5"/>
+            <column name="user_id" value="3000"/>
+            <column name="account_id" value="1"/>
+            <column name="recipient_id" value="2"/>
+            <column name="sum" value="3000"/>
+            <column name="type" type="varchar" value="transaction"/>
+            <column name="date" value="2019-07-11"/>
+            <column name="time" value="05:20:32"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -47,4 +47,9 @@ public class User {
     public void addAccounts(Account account) {
         this.accounts.add(account);
     }
+
+    public User deleteAccount(Account account) {
+        accounts.remove(account);
+        return this;
+    }
 }

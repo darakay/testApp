@@ -69,29 +69,10 @@ public class UserControllerTest {
 
     }
 
-
-    @Test
-    public void createUserAccount() throws Exception {
-        User saved = userRepository.save(new User("User", "With account", "user", "111"));
-        String uri = String.format(CONTROLLER_URI + "/%s/accounts", saved.getId());
-
-        MvcResult result  =
-                mockMvc.perform(post(uri)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(mapper.writeValueAsString(TariffType.plain())))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        long id = extractUserId(result.getResponse().getRedirectedUrl());
-
-        assertThat(accountRepository.existsById(id)).isTrue();
-        assertThat(userRepository.findById(saved.getId()).get().getAccounts().size()).isEqualTo(1);
-    }
-
     @Test
     public void performTransaction_createCorrectTransactionEntity() throws Exception {
         TransactionDto transactionDto =
-                TransactionDto.builder().sourceId(1).targetId(2).sum(30).build();
+                new TransactionDto(1000L, 1, 2, 30, 0);
 
         String uri = CONTROLLER_URI+"/1000/transaction";
 
@@ -110,7 +91,7 @@ public class UserControllerTest {
     @Test
     public void performTransaction_changeAccountsSum() throws Exception {
         TransactionDto transactionDto =
-                TransactionDto.builder().sourceId(1).targetId(2).sum(5).build();
+                new TransactionDto(1000L, 1, 2, 5, 0);
 
         String uri = CONTROLLER_URI+"/1000/transaction";
 
@@ -125,10 +106,10 @@ public class UserControllerTest {
     @Test
     public void performTransaction_doNotCauseADeadlock() throws Exception {
         TransactionDto trans1 =
-                TransactionDto.builder().sourceId(1).targetId(2).sum(15).build();
+                new TransactionDto(1000L, 1, 2, 15, 56);
 
         TransactionDto trans2 =
-                TransactionDto.builder().sourceId(2).targetId(1).sum(10).build();
+                new TransactionDto(2000L, 2, 1, 10, 56);
 
         ExecutorService service = Executors.newFixedThreadPool(2);
         Transaction first = service
@@ -220,7 +201,7 @@ public class UserControllerTest {
     public void getTransactions_failed_whenUserIsNotAccountOwnerOrUser() throws Exception {
         String uri = CONTROLLER_URI + "/1000/transaction";
 
-        TransactionDto transactionDto = TransactionDto.builder().sourceId(2).targetId(1).sum(50).build();
+        TransactionDto transactionDto =  new TransactionDto(2000L, 2, 1, 50, 56);
 
         MvcResult result = mockMvc.perform(post(uri)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -238,7 +219,7 @@ public class UserControllerTest {
     public void getTransactions_isOk_whenTransactionAuthorIsAccountUser() throws Exception {
         String uri = CONTROLLER_URI + "/3000/transaction";
 
-        TransactionDto transactionDto = TransactionDto.builder().sourceId(1).targetId(2).sum(25).build();
+        TransactionDto transactionDto =  new TransactionDto(1000L, 1, 2, 25, 56);
 
         MvcResult result = mockMvc.perform(post(uri)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)

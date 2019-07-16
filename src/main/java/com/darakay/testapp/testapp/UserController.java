@@ -35,13 +35,6 @@ public class UserController {
         return ResponseEntity.created(new URI("/users/"+userService.logUp(user).getId())).build();
     }
 
-    @PostMapping("/{uid}/accounts")
-    public ResponseEntity<?> createAccountFor(@PathVariable long uid, @RequestBody TariffType tariffType)
-            throws TariffNotFoundException, UserNotFoundException {
-
-        Account created = userService.createAccountForUser(uid, tariffType);
-        return ResponseEntity.created(URI.create("/accounts/"+created.getId())).build();
-    }
 
     @PostMapping("{uid}/transaction")
     public ResponseEntity<TransactionResult> performTransaction(

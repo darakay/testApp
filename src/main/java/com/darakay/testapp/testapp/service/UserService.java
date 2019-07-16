@@ -11,31 +11,31 @@ import com.darakay.testapp.testapp.repos.TariffRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final AccountRepository accountRepository;
-    private final TariffRepository tariffRepository;
 
 
-    public UserService(UserRepository userRepository, AccountRepository accountRepository, TariffRepository tariffRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.accountRepository = accountRepository;
-        this.tariffRepository = tariffRepository;
-    }
-
-    public Account createAccountForUser(long userId, TariffType tariffType) throws UserNotFoundException, TariffNotFoundException {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Tariff tariff = tariffRepository.findByName(tariffType.getType()).orElseThrow(TariffNotFoundException::new);
-        Account saved = accountRepository.save(new Account(0, tariff, user));
-        User owner = userRepository.save(user);
-        owner.addAccounts(saved);
-        userRepository.save(owner);
-        return saved;
     }
 
     public User logUp(User user){
+        return userRepository.save(user);
+    }
+
+    public Optional<User> loadByLogin(String login) {
+        return userRepository.findByLogin(login);
+    }
+
+    public User getUserById(long id) throws UserNotFoundException {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    }
+
+    public User save(User user){
         return userRepository.save(user);
     }
 }
