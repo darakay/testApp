@@ -21,32 +21,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
-    private final UserService userService;
     private final TransactionService transactionService;
 
-    public UserController(UserService userService, TransactionService transactionService) {
-        this.userService = userService;
+    public UserController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> userLogUp(@RequestBody User user) throws URISyntaxException {
-        return ResponseEntity.created(new URI("/users/"+userService.logUp(user).getId())).build();
-    }
-
-
-    @PostMapping("{uid}/transaction")
-    public ResponseEntity<TransactionResult> performTransaction(
-            @PathVariable long uid,
-            @RequestBody TransactionDto transactionDto)
-            throws AccountNotFoundException, UserNotFoundException {
-
-        TransactionResult result = transactionService.create(uid, transactionDto);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("{uid}/transaction")
+    @GetMapping("/{uid}/transaction")
     public ResponseEntity<List<UserTransaction>> getTransactions(@PathVariable long uid,
                                                                  @RequestParam (required = false, defaultValue = "date") String sortedBy,
                                                                  @RequestParam(required = false) Integer limit,

@@ -5,7 +5,7 @@ import com.darakay.testapp.testapp.dto.AccountDto;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
-import com.darakay.testapp.testapp.service.UserService;
+import com.darakay.testapp.testapp.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +19,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Enumeration;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -33,13 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class AccountControllerTest {
 
-    private final static String CONTROLLER_URL = "/accounts";
-
     @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private AccountService accountService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,8 +51,6 @@ public class AccountControllerTest {
                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andReturn();
-
-        Enumeration<String> headers = result.getRequest().getHeaderNames();
 
         long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[2]);
 
@@ -101,13 +95,13 @@ public class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user2", password = "qwerty")
+    @WithMockUser(username = "owner", password = "qwerty")
     public void deleteAccount_ShouldDeleteAccountById() throws Exception {
-        mockMvc.perform(delete("/accounts/2"))
+        mockMvc.perform(delete("/accounts/3"))
                 .andExpect(status().isNoContent())
                 .andReturn();
 
-        assertThat(accountRepository.existsById(2L)).isFalse();
+        assertThat(accountRepository.existsById(3L)).isFalse();
     }
 
     @Test

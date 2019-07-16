@@ -12,27 +12,22 @@ import lombok.ToString;
 @Builder
 @EqualsAndHashCode
 @ToString
+@Getter
 public class UserTransaction {
-    @Getter
     @JsonProperty("accountId")
     private long accountId;
 
-    @Getter
     @JsonProperty("otherId")
     private long otherId;
 
-    @Getter
     @JsonProperty("sum")
     private double sum;
 
-    @Getter
     @JsonProperty("date")
     private String date;
 
-    @Getter
     @JsonProperty("type")
     private String type;
-
 
     private  UserTransaction(long accountId, long otherId, double sum, String date, String type) {
         this.accountId = accountId;
