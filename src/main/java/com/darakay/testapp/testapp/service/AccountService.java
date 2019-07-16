@@ -90,4 +90,12 @@ public class AccountService {
         userService.save(user.deleteAccount(account));
         accountRepository.save(account.removeUser(user));
     }
+
+    public Account getById(long id) throws AccountNotFoundException {
+        return accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+    }
+
+    public Account save(Account account){
+        return accountRepository.save(account);
+    }
 }

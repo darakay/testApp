@@ -35,9 +35,6 @@ public class AccountControllerTest {
     private AccountRepository accountRepository;
 
     @Autowired
-    private AccountService accountService;
-
-    @Autowired
     private MockMvc mockMvc;
 
     private ObjectMapper mapper = new ObjectMapper();

@@ -21,7 +21,7 @@
             <column name="id" value="3"/>
             <column name="sum" value="0"/>
             <column name="tariff_name" value="plain"/>
-            <column name="owner_id" value="1000"/>
+            <column name="owner_id" value="3000"/>
         </insert>
     </changeSet>
 

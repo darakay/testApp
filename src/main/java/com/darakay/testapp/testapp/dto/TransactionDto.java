@@ -26,7 +26,7 @@ public class TransactionDto {
     @JsonProperty("userId")
     private long userId;
 
-    public TransactionDto(long userId, long sourceId, long targetId, double sum, long id) {
+    private TransactionDto(long userId, long sourceId, long targetId, double sum, long id) {
         this.userId = userId;
         this.sourceId = sourceId;
         this.targetId = targetId;

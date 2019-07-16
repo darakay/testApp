@@ -1,6 +1,6 @@
 package com.darakay.testapp.testapp.service;
 
-import com.darakay.testapp.testapp.dto.TransactionDto;
+import com.darakay.testapp.testapp.dto.TransactionRequest;
 import com.darakay.testapp.testapp.dto.TransactionResult;
 import com.darakay.testapp.testapp.dto.UserTransaction;
 import com.darakay.testapp.testapp.entity.Account;
@@ -11,10 +11,10 @@ import com.darakay.testapp.testapp.exception.AccountNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
-import com.darakay.testapp.testapp.repos.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,37 +24,32 @@ import java.util.stream.Collectors;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public TransactionService(TransactionRepository repository, AccountRepository accountRepository, UserRepository userRepository) {
+    public TransactionService(TransactionRepository repository, AccountService accountService, UserService userService) {
         this.transactionRepository = repository;
-        this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
+        this.accountService = accountService;
+        this.userService = userService;
     }
 
-    synchronized public TransactionResult create(long authorId, TransactionDto transactionDto)
+    synchronized public TransactionResult perform(TransactionRequest transactionRequest)
             throws AccountNotFoundException, UserNotFoundException {
-        User user = userRepository.findById(authorId).orElseThrow(UserNotFoundException::new);
-        Account source = accountRepository
-                .findById(transactionDto.getSourceId())
-                .orElseThrow(AccountNotFoundException::new);
-        Account target = accountRepository
-                .findById(transactionDto.getTargetId())
-                .orElseThrow(AccountNotFoundException::new);
-        if(!isCorrectSum(user, transactionDto))
+        User user = userService.getCurrentPrincipal();
+        Account source = accountService.getById(transactionRequest.getSourceAccountId());
+        Account target = accountService.getById(transactionRequest.getTargetAccountId());
+        if(!isCorrectSum(user, transactionRequest.getSum(), source))
             return TransactionResult.fail("Invalid transaction");
 
-        Transaction transaction = performTransaction(user, source, target, transactionDto.getSum());
+        Transaction transaction = performTransaction(user, source, target, transactionRequest.getSum());
         return TransactionResult.ok(transactionRepository.save(transaction));
     }
 
 
-    private boolean isCorrectSum(User user, TransactionDto transactionDto) throws AccountNotFoundException, UserNotFoundException {
-        Account source = accountRepository.findById(transactionDto.getSourceId()).orElseThrow(AccountNotFoundException::new);
-        return transactionDto.getSum() > 0 &&  transactionDto.getSum() <= source.getSum() &&
-                isCorrectSumForUser(user, source, transactionDto.getSum());
+    private boolean isCorrectSum(User user, double sum, Account source) throws AccountNotFoundException, UserNotFoundException {
+        return sum> 0 &&  sum <= source.getSum() &&
+                isCorrectSumForUser(user, source, sum);
     }
 
     private boolean isCorrectSumForUser(User user, Account account, double sum) {
@@ -67,13 +62,13 @@ public class TransactionService {
     }
 
     private Transaction performTransaction(User author, Account source, Account target, double sum){
-        accountRepository.save(source.changeSum(-sum));
-        accountRepository.save(target.changeSum(sum));
+        accountService.save(source.changeSum(-sum));
+        accountService.save(target.changeSum(sum));
         return new Transaction(source, target, author, sum, TransactionType.TRANSACTION);
     }
 
     public List<UserTransaction> getUserTransactionsSortedBy(long uid, String order, Integer limit, Integer offset) throws UserNotFoundException {
-        User user = userRepository.findById(uid).orElseThrow(UserNotFoundException::new);
+        User user = userService.getUserById(uid);
         if(limit == null)
             return getUserTransactionsSortedBy(uid, order);
         Pageable pageable = PageRequest.of(offset, limit, Sort.Direction.ASC, order);
@@ -85,7 +80,7 @@ public class TransactionService {
     }
 
     private List<UserTransaction> getUserTransactionsSortedBy(long uid, String order) throws UserNotFoundException {
-        User user = userRepository.findById(uid).orElseThrow(UserNotFoundException::new);
+        User user = userService.getUserById(uid);
         Sort sort = new Sort(Sort.Direction.ASC, order);
         return transactionRepository
                 .findTransactionsByUser(user, sort)
@@ -93,4 +88,5 @@ public class TransactionService {
                 .map(UserTransaction::fromTransaction)
                 .collect(Collectors.toList());
     }
+
 }

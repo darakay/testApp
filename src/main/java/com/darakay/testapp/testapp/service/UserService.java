@@ -9,6 +9,7 @@ import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TariffRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -37,5 +38,11 @@ public class UserService {
 
     public User save(User user){
         return userRepository.save(user);
+    }
+
+    public User getCurrentPrincipal(){
+        org.springframework.security.core.userdetails.User principal =
+                (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByLogin(principal.getUsername()).get();
     }
 }

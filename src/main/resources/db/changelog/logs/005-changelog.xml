@@ -8,10 +8,6 @@
             <column name="account_id" value="1"/>
         </insert>
         <insert tableName="user_account">
-            <column name="user_id" value="3000"/>
-            <column name="account_id" value="1"/>
-        </insert>
-        <insert tableName="user_account">
         <column name="user_id" value="4000"/>
         <column name="account_id" value="1"/>
     </insert>
