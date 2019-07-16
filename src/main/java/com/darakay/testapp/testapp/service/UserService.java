@@ -1,13 +1,7 @@
 package com.darakay.testapp.testapp.service;
 
-import com.darakay.testapp.testapp.entity.Account;
-import com.darakay.testapp.testapp.entity.Tariff;
-import com.darakay.testapp.testapp.entity.TariffType;
 import com.darakay.testapp.testapp.entity.User;
-import com.darakay.testapp.testapp.exception.TariffNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
-import com.darakay.testapp.testapp.repos.AccountRepository;
-import com.darakay.testapp.testapp.repos.TariffRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

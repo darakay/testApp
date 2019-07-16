@@ -4,7 +4,8 @@ package com.darakay.testapp.testapp.entity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @EqualsAndHashCode
 @Entity

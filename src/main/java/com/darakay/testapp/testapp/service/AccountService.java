@@ -11,15 +11,14 @@ import com.darakay.testapp.testapp.exception.TariffNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TariffRepository;
-import com.darakay.testapp.testapp.repos.UserRepository;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AccountService {

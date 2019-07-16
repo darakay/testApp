@@ -9,12 +9,10 @@ import com.darakay.testapp.testapp.entity.TransactionType;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.AccountNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
-import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

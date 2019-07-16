@@ -3,12 +3,9 @@ package com.darakay.testapp.testapp.dto;
 import com.darakay.testapp.testapp.entity.Transaction;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.Date;
 
 @EqualsAndHashCode
 @ToString
