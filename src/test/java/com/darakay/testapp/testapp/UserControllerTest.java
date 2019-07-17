@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,11 +48,12 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @WithMockUser(username = "user2", password = "qwerty")
     public void getTransactions() throws Exception {
         String uri = CONTROLLER_URI + "/2000/transaction";
 
-        MvcResult result = mockMvc.perform(get(uri)).andReturn();
+        MvcResult result = mockMvc
+                .perform(get(uri) .with(httpBasic("user2", "qwerty")))
+                .andReturn();
 
         List<UserTransaction> userTransactions =
                 mapper.readValue(result.getResponse().getContentAsString(),
@@ -66,11 +68,12 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user2", password = "qwerty")
     public void getTransactionsSortedByDate() throws Exception {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=date";
 
-        MvcResult result = mockMvc.perform(get(uri)).andReturn();
+        MvcResult result = mockMvc
+                .perform(get(uri) .with(httpBasic("user2", "qwerty")))
+                .andReturn();
 
         List<UserTransaction> userTransactions =
                 mapper.readValue(result.getResponse().getContentAsString(),
@@ -85,11 +88,12 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user2", password = "qwerty")
     public void getTransactionsSortedByTransactionSum() throws Exception {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum";
 
-        MvcResult result = mockMvc.perform(get(uri)).andReturn();
+        MvcResult result = mockMvc
+                .perform(get(uri).with(httpBasic("user2", "qwerty")))
+                .andReturn();
 
         List<UserTransaction> userTransactions =
                 mapper.readValue(result.getResponse().getContentAsString(),
@@ -104,11 +108,12 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user2", password = "qwerty")
     public void getTransactions_() throws Exception {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum&limit=1&offset=2";
 
-        MvcResult result = mockMvc.perform(get(uri)).andReturn();
+        MvcResult result = mockMvc
+                .perform(get(uri).with(httpBasic("user2", "qwerty")))
+                .andReturn();
 
         List<UserTransaction> userTransactions =
                 mapper.readValue(result.getResponse().getContentAsString(),

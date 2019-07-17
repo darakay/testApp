@@ -11,6 +11,8 @@ import com.darakay.testapp.testapp.exception.TariffNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TariffRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
@@ -26,6 +28,7 @@ public class AccountService {
     private final UserService userService;
     private final TariffRepository tariffRepository;
 
+    @Autowired
     public AccountService(AccountRepository accountRepository, UserService userService, TariffRepository tariffRepository) {
         this.accountRepository = accountRepository;
         this.userService = userService;
@@ -42,7 +45,7 @@ public class AccountService {
         return saved;
     }
 
-    @PostAuthorize(value = "@accountAccessEvaluator.canGetAccountInfo(returnObject)")
+    @PostAuthorize(value = "@accountAccessEvaluator.canGetAccountInfo(returnObject, principal.id)")
     public Account getAccount(long id) throws AccountNotFoundException {
         return accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
     }
@@ -51,17 +54,17 @@ public class AccountService {
         return tariffRepository.findByName(tariffName).orElseThrow(TariffNotFoundException::new);
     }
 
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId)")
+    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public void delete(@P(value = "accountId") long accountId) {
         accountRepository.deleteById(accountId);
     }
 
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId)")
+    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public List<User> getUsers(long accountId) throws AccountNotFoundException {
         return new ArrayList<>(this.getById(accountId).getUsers());
     }
 
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId)")
+    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public List<Transaction> getTransactions(long accountId) throws AccountNotFoundException {
         Account account =  getById(accountId);
         List<Transaction> w = account.getWithdrawals();
@@ -70,7 +73,7 @@ public class AccountService {
     }
 
     @Transactional
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId)")
+    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public void deleteAccountUser(long accountId, long userId)
             throws AccountNotFoundException, UserNotFoundException {
         Account account = getById(accountId);

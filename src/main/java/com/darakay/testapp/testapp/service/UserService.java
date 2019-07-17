@@ -1,8 +1,10 @@
 package com.darakay.testapp.testapp.service;
 
+import com.darakay.testapp.testapp.security.UserData;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +37,8 @@ public class UserService {
     }
 
     public User getCurrentPrincipal(){
-        org.springframework.security.core.userdetails.User principal =
-                (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByLogin(principal.getUsername()).get();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserData principal = (UserData) auth.getPrincipal();
+        return userRepository.findById(principal.getId()).get();
     }
 }

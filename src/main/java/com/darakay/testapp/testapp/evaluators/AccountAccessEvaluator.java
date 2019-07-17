@@ -3,37 +3,24 @@ package com.darakay.testapp.testapp.evaluators;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.AccountNotFoundException;
-import com.darakay.testapp.testapp.repos.AccountRepository;
-import com.darakay.testapp.testapp.service.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.darakay.testapp.testapp.service.AccountService;
 import org.springframework.stereotype.Component;
 
 @Component(value = "accountAccessEvaluator")
 public class AccountAccessEvaluator {
-    private final UserService userService;
-    private final AccountRepository accountRepository;
 
-    public AccountAccessEvaluator(UserService userService, AccountRepository accountRepository) {
-        this.userService = userService;
-        this.accountRepository = accountRepository;
+    private final AccountService accountService;
+
+    public AccountAccessEvaluator(AccountService accountService) {
+        this.accountService = accountService;
     }
 
-    public boolean canGetAccountInfo(Account account){
-       User user = getPrincipal();
-        return account.getOwner().equals(user)
-                || account.getUsers().stream().anyMatch(u -> u.equals(user));
+    public boolean canGetAccountInfo(Account account, long principalId){
+        return account.getOwner().getId() == principalId
+                || account.getUsers().stream().map(User::getId).anyMatch(id -> id == principalId);
     }
 
-    public boolean isAccountOwner(long accountId) throws AccountNotFoundException {
-        return accountRepository.findById(accountId)
-                .orElseThrow(AccountNotFoundException::new)
-                .getOwner().equals(getPrincipal());
-    }
-
-
-    private User getPrincipal(){
-        org.springframework.security.core.userdetails.User principal =
-                (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userService.loadByLogin(principal.getUsername()).get();
+    public boolean isAccountOwner(long accountId, long principalId) throws AccountNotFoundException {
+        return accountService.getById(accountId).getOwner().getId() == principalId;
     }
 }

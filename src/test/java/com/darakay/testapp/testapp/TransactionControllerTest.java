@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,7 +42,6 @@ public class TransactionControllerTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    @WithMockUser(username = "owner", password = "qwerty")
     public void performTransaction_ShouldAddTransactionAtDatabase() throws Exception {
         TransactionRequest request = TransactionRequest.builder()
                 .sum(20)
@@ -52,6 +52,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post("/transaction")
+                                .with(httpBasic("owner", "qwerty"))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -68,7 +69,6 @@ public class TransactionControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user3", password = "qwerty")
     public void performTransaction_ShouldNotPerform_WhenUserDoesNotHaveAccessToAccount() throws Exception {
         TransactionRequest request = TransactionRequest.builder()
                 .sum(20)
@@ -79,6 +79,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post("/transaction")
+                                .with(httpBasic("user3", "qwerty"))
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

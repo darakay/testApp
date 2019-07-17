@@ -9,6 +9,8 @@ import com.darakay.testapp.testapp.exception.AccountNotFoundException;
 import com.darakay.testapp.testapp.exception.TariffNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,7 @@ public class AccountController {
     private final AccountService accountService;
 
 
+    @Autowired
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
