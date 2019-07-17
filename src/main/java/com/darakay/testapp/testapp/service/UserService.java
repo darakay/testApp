@@ -21,10 +21,6 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Optional<User> loadByLogin(String login) {
-        return userRepository.findByLogin(login);
-    }
-
     public User getUserById(long id) throws UserNotFoundException {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }

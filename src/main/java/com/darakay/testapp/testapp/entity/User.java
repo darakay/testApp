@@ -8,29 +8,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Getter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private long id;
 
-    @Getter
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "user_account",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "account_id"))
     private Set<Account> accounts = new HashSet<>();
 
-    @Getter
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    private Set<Account> ownAccounts;
+
     private String firstName;
 
-    @Getter
     private String lastName;
 
-    @Getter
     private String login;
 
-    @Getter
     private String password;
 
     public User() {

@@ -1,7 +1,9 @@
 package com.darakay.testapp.testapp;
 
 import com.darakay.testapp.testapp.dto.UserCreateRequest;
+import com.darakay.testapp.testapp.dto.UserInfo;
 import com.darakay.testapp.testapp.dto.UserTransactionDto;
+import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,6 +46,22 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Test
+    public void getUser_ShouldReturnAllInfoAboutPrincipal() throws Exception {
+
+        UserInfo expected = UserInfo.fromEntity(userRepository.findById(2000).orElseThrow(UserNotFoundException::new));
+
+        MvcResult result = mockMvc
+                .perform(
+                    get(CONTROLLER_URI+"/2000")
+                    .header("XXX-JwtToken", jwtTokenService.create(2000)))
+                .andExpect(status().isOk())
+                .andReturn();
+        UserInfo actual = mapper.readValue(result.getResponse().getContentAsString(), UserInfo.class);
+
+        assertThat(actual).isEqualTo(expected);
+    }
 
 
     @Test
