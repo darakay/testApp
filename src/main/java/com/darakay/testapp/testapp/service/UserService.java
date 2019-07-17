@@ -5,8 +5,7 @@ import com.darakay.testapp.testapp.security.UserData;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -21,10 +20,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtTokenService jwtTokenService;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtTokenService jwtTokenService) {
         this.userRepository = userRepository;
+        this.jwtTokenService = jwtTokenService;
     }
 
     public User logUp(User user){
@@ -35,7 +36,7 @@ public class UserService {
         String[] credentials = getCredentialsValue(authenticationHeader);
         User user = loadByLogin(credentials[0]).orElseThrow(() -> new UsernameNotFoundException("Invalid login!"));
         if(user.getPassword().equals(credentials[1])){
-            return createToken(user.getId());
+            return jwtTokenService.create(user.getId());
         }
         throw new BadCredentialsException("Invalid password");
     }
@@ -58,6 +59,10 @@ public class UserService {
         return userRepository.findById(principal.getId()).get();
     }
 
+    public User getUserByIdOrNull(long id){
+        return userRepository.findById(id).orElse(null);
+    }
+
     private String[] getCredentialsValue(String headerValue) throws BadRequestException {
         if(headerValue == null ||headerValue.split(" ").length != 2)
             throw new BadRequestException();
@@ -66,12 +71,5 @@ public class UserService {
         if(decodedValue.split(":").length != 2)
             throw new BadRequestException();
         return decodedValue.split(":");
-    }
-
-    private String createToken(long uid){
-        return Jwts.builder()
-                .claim("id", uid)
-                .signWith(SignatureAlgorithm.HS256, "secretKey")
-                .compact();
     }
 }

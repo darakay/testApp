@@ -8,6 +8,7 @@ import com.darakay.testapp.testapp.exception.TransactionNotFountException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
 import com.darakay.testapp.testapp.repos.UserRepository;
+import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -46,6 +47,9 @@ public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     @Test
     public void login_ShouldCreateCorrectJwtToken() throws Exception {
@@ -89,7 +93,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction";
 
         MvcResult result = mockMvc
-                .perform(get(uri) .with(httpBasic("user2", "qwerty")))
+                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransaction> userTransactions =
@@ -109,7 +113,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=date";
 
         MvcResult result = mockMvc
-                .perform(get(uri) .with(httpBasic("user2", "qwerty")))
+                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransaction> userTransactions =
@@ -129,7 +133,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum";
 
         MvcResult result = mockMvc
-                .perform(get(uri).with(httpBasic("user2", "qwerty")))
+                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransaction> userTransactions =
@@ -149,7 +153,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum&limit=1&offset=2";
 
         MvcResult result = mockMvc
-                .perform(get(uri).with(httpBasic("user2", "qwerty")))
+                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransaction> userTransactions =
