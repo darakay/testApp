@@ -87,14 +87,33 @@ public class AuthenticationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
-                .andExpect(redirectedUrlPattern("/users/*"))
-                .andExpect(header().exists("XXX-JwtToken"))
+                .andExpect(redirectedUrlPattern("/api/users/*"))
                 .andReturn();
 
-        long uid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[2]);
+        long uid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
 
         assertThat(userRepository.existsById(uid)).isTrue();
         assertThat(userRepository.findById(uid).get().getLogin()).isEqualTo("ivan");
         assertThat(userRepository.findById(uid).get().getPassword()).isEqualTo("123");
+
+        userRepository.deleteById(uid);
+    }
+
+    @Test
+    public void logup_ShouldNotLogUpUser_WhenLoginAlreadyExist() throws Exception {
+        UserCreateRequest req = UserCreateRequest.builder()
+                .firstName("Vanya")
+                .lastName("XXX")
+                .login("owner")
+                .password("123")
+                .build();
+
+        MvcResult result = mockMvc
+                .perform(
+                        post("/auth/logup")
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .content(mapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
     }
 }

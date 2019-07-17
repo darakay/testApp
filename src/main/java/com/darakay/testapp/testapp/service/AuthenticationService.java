@@ -1,11 +1,14 @@
 package com.darakay.testapp.testapp.service;
 
+import com.darakay.testapp.testapp.dto.UserCreateRequest;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.BadCredentialsException;
+import com.darakay.testapp.testapp.exception.BadRequestException;
 import com.darakay.testapp.testapp.exception.InvalidAuthorizationHeader;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Base64;
 
@@ -26,6 +29,13 @@ public class AuthenticationService {
             return jwtTokenService.create(user.getId());
         }
         throw new BadCredentialsException();
+    }
+
+    public User logup(UserCreateRequest request) throws  BadRequestException {
+        if(userRepository.existsByLogin(request.getLogin()))
+            throw new BadRequestException();
+        return userRepository.save(
+                new User(request.getFirstName(), request.getLastName(), request.getLogin(), request.getPassword()));
     }
 
     private String[] getCredentialsValue(String headerValue) throws InvalidAuthorizationHeader {

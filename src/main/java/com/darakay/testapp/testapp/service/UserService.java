@@ -1,19 +1,14 @@
 package com.darakay.testapp.testapp.service;
 
-import com.darakay.testapp.testapp.exception.BadCredentialsException;
-import com.darakay.testapp.testapp.exception.InvalidAuthorizationHeader;
-import com.darakay.testapp.testapp.security.UserData;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
-import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
+import com.darakay.testapp.testapp.security.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.Optional;
 
 @Service

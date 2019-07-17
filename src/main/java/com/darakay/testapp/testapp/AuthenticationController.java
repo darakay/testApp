@@ -2,6 +2,7 @@ package com.darakay.testapp.testapp;
 
 import com.darakay.testapp.testapp.dto.UserCreateRequest;
 import com.darakay.testapp.testapp.exception.BadCredentialsException;
+import com.darakay.testapp.testapp.exception.BadRequestException;
 import com.darakay.testapp.testapp.exception.InvalidAuthorizationHeader;
 import com.darakay.testapp.testapp.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logup")
-    public ResponseEntity<?> logup(@RequestBody UserCreateRequest request) {
-        return ResponseEntity.created(URI.create("")).build();
+    public ResponseEntity<?> logup(@RequestBody UserCreateRequest request) throws BadRequestException {
+        return ResponseEntity.created(URI.create("/api/users/"+au.logup(request).getId())).build();
     }
 }

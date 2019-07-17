@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface UserRepository extends CrudRepository<User, Long> {
     @EntityGraph(attributePaths = {"accounts"})
     Optional<User> findById(long id);
-
+    boolean existsByLogin(String login);
     Optional<User> findByLogin(String login);
 }
