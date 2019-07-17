@@ -48,6 +48,43 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @Test
+    public void login_ShouldCreateCorrectJwtToken() throws Exception {
+        MvcResult result = mockMvc
+                .perform(get("/users/login") .with(httpBasic("owner", "qwerty")))
+                .andReturn();
+
+        assertThat(result.getResponse().getHeader("XXX-JwtToken")).isNotNull();
+    }
+
+    @Test
+    public void login_ShouldReturn401Response_WhenPasswordIsInvalid() throws Exception {
+                mockMvc
+                .perform(get("/users/login") .with(httpBasic("owner", "111")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void login_ShouldReturn401Response_WhenLoginIsInvalid() throws Exception {
+        mockMvc
+                .perform(get("/users/login").with(httpBasic("user", "qwerty")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void login_ShouldReturnBadRequest_WhenAuthorizationHeaderIsInvalid() throws Exception {
+        mockMvc
+            .perform(get("/users/login").header("Authorization", "duty7dg6vvg0="))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void login_ShouldReturnBadRequest_WhenNoAuthorizationHeader() throws Exception {
+        mockMvc
+                .perform(get("/users/login"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void getTransactions() throws Exception {
         String uri = CONTROLLER_URI + "/2000/transaction";
 
