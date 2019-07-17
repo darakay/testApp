@@ -1,14 +1,10 @@
 package com.darakay.testapp.testapp;
 
-import com.darakay.testapp.testapp.dto.TransactionDto;
-import com.darakay.testapp.testapp.dto.TransactionResult;
-import com.darakay.testapp.testapp.dto.UserTransaction;
-import com.darakay.testapp.testapp.entity.*;
-import com.darakay.testapp.testapp.exception.TransactionNotFountException;
-import com.darakay.testapp.testapp.repos.AccountRepository;
-import com.darakay.testapp.testapp.repos.TransactionRepository;
+import com.darakay.testapp.testapp.dto.UserCreateRequest;
+import com.darakay.testapp.testapp.dto.UserTransactionDto;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -17,23 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -41,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerTest {
 
-    private static final String CONTROLLER_URI = "/users";
+    private static final String CONTROLLER_URI = "/api/users";
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -51,42 +42,9 @@ public class UserControllerTest {
     @Autowired
     private JwtTokenService jwtTokenService;
 
-    @Test
-    public void login_ShouldCreateCorrectJwtToken() throws Exception {
-        MvcResult result = mockMvc
-                .perform(get("/users/login") .with(httpBasic("owner", "qwerty")))
-                .andReturn();
+    @Autowired
+    private UserRepository userRepository;
 
-        assertThat(result.getResponse().getHeader("XXX-JwtToken")).isNotNull();
-    }
-
-    @Test
-    public void login_ShouldReturn401Response_WhenPasswordIsInvalid() throws Exception {
-                mockMvc
-                .perform(get("/users/login") .with(httpBasic("owner", "111")))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void login_ShouldReturn401Response_WhenLoginIsInvalid() throws Exception {
-        mockMvc
-                .perform(get("/users/login").with(httpBasic("user", "qwerty")))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void login_ShouldReturnBadRequest_WhenAuthorizationHeaderIsInvalid() throws Exception {
-        mockMvc
-            .perform(get("/users/login").header("Authorization", "duty7dg6vvg0="))
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void login_ShouldReturnBadRequest_WhenNoAuthorizationHeader() throws Exception {
-        mockMvc
-                .perform(get("/users/login"))
-                .andExpect(status().isBadRequest());
-    }
 
     @Test
     public void getTransactions() throws Exception {
@@ -96,14 +54,14 @@ public class UserControllerTest {
                 .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
-        List<UserTransaction> userTransactions =
+        List<UserTransactionDto> userTransactionDtos =
                 mapper.readValue(result.getResponse().getContentAsString(),
-                        new TypeReference<List<UserTransaction>>(){});
+                        new TypeReference<List<UserTransactionDto>>(){});
 
-        assertThat(userTransactions).asList().contains(
-                UserTransaction.builder().accountId(2).otherId(1)
+        assertThat(userTransactionDtos).asList().contains(
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(2000).date("2019-07-10 08:20:32").type("transaction").build(),
-                UserTransaction.builder().accountId(2).otherId(1)
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(500).date("2019-07-11 09:20:32").type("transaction").build());
 
     }
@@ -116,14 +74,14 @@ public class UserControllerTest {
                 .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
-        List<UserTransaction> userTransactions =
+        List<UserTransactionDto> userTransactionDtos =
                 mapper.readValue(result.getResponse().getContentAsString(),
-                        new TypeReference<List<UserTransaction>>(){});
+                        new TypeReference<List<UserTransactionDto>>(){});
 
-        assertThat(userTransactions).asList().containsSequence(
-                UserTransaction.builder().accountId(2).otherId(1)
+        assertThat(userTransactionDtos).asList().containsSequence(
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(2000).date("2019-07-10 08:20:32").type("transaction").build(),
-                UserTransaction.builder().accountId(2).otherId(1)
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(500).date("2019-07-11 09:20:32").type("transaction").build());
 
     }
@@ -136,14 +94,14 @@ public class UserControllerTest {
                 .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
-        List<UserTransaction> userTransactions =
+        List<UserTransactionDto> userTransactionDtos =
                 mapper.readValue(result.getResponse().getContentAsString(),
-                        new TypeReference<List<UserTransaction>>(){});
+                        new TypeReference<List<UserTransactionDto>>(){});
 
-        assertThat(userTransactions).asList().containsSequence(
-                UserTransaction.builder().accountId(2).otherId(1)
+        assertThat(userTransactionDtos).asList().containsSequence(
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(500).date("2019-07-11 09:20:32").type("transaction").build(),
-                UserTransaction.builder().accountId(2).otherId(1)
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(2000).date("2019-07-10 08:20:32").type("transaction").build());
 
     }
@@ -156,13 +114,13 @@ public class UserControllerTest {
                 .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
                 .andReturn();
 
-        List<UserTransaction> userTransactions =
+        List<UserTransactionDto> userTransactionDtos =
                 mapper.readValue(result.getResponse().getContentAsString(),
-                        new TypeReference<List<UserTransaction>>() {
+                        new TypeReference<List<UserTransactionDto>>() {
                         });
 
-        assertThat(userTransactions).asList().containsSequence(
-                UserTransaction.builder().accountId(2).otherId(1)
+        assertThat(userTransactionDtos).asList().containsSequence(
+                UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(2000).date("2019-07-10 08:20:32").type("transaction").build());
 
     }

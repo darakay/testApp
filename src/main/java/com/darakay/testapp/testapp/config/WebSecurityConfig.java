@@ -17,12 +17,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
+                .authorizeRequests().antMatchers("/auth/logup","/auth/login").anonymous()
+                .and()
+                .authorizeRequests().antMatchers("/api/**").authenticated()
+                .and()
                 .addFilterBefore(filter(), RequestHeaderAuthenticationFilter.class)
-                .authorizeRequests().antMatchers("/users/login").permitAll()
-                .and()
-                .authorizeRequests().antMatchers("/**").authenticated()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        ;
     }
 
     @Bean

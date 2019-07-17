@@ -5,6 +5,7 @@ import com.darakay.testapp.testapp.dto.TransactionResult;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
+import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -30,11 +31,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class TransactionControllerTest {
 
+    private static String URL = "/api/transactions";
+
     @Autowired
     private TransactionRepository transactionRepository;
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,8 +57,8 @@ public class TransactionControllerTest {
 
         MvcResult result = mockMvc
                 .perform(
-                        post("/transaction")
-                                .with(httpBasic("owner", "qwerty"))
+                        post(URL)
+                        .header("XXX-JwtToken", jwtTokenService.create(1000))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -78,8 +84,8 @@ public class TransactionControllerTest {
 
         MvcResult result = mockMvc
                 .perform(
-                        post("/transaction")
-                                .with(httpBasic("user3", "qwerty"))
+                        post(URL)
+                                .header("XXX-JwtToken", jwtTokenService.create(3000))
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

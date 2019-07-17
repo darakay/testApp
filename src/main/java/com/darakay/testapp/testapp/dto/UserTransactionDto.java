@@ -13,7 +13,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 @Getter
-public class UserTransaction {
+public class UserTransactionDto {
     @JsonProperty("accountId")
     private long accountId;
 
@@ -29,7 +29,7 @@ public class UserTransaction {
     @JsonProperty("type")
     private String type;
 
-    private  UserTransaction(long accountId, long otherId, double sum, String date, String type) {
+    private UserTransactionDto(long accountId, long otherId, double sum, String date, String type) {
         this.accountId = accountId;
         this.otherId = otherId;
         this.sum = sum;
@@ -37,11 +37,11 @@ public class UserTransaction {
         this.type = type;
     }
 
-    public UserTransaction() {
+    public UserTransactionDto() {
     }
 
-    public static UserTransaction fromTransaction(Transaction transaction){
-        return new UserTransaction(transaction.getSource().getId(),
+    public static UserTransactionDto fromTransaction(Transaction transaction){
+        return new UserTransactionDto(transaction.getSource().getId(),
                 transaction.getTarget().getId(), transaction.getSum(),
                 transaction.getDate() + " " + transaction.getTime(),
                 transaction.getType());

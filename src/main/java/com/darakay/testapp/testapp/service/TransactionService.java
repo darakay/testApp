@@ -2,7 +2,7 @@ package com.darakay.testapp.testapp.service;
 
 import com.darakay.testapp.testapp.dto.TransactionRequest;
 import com.darakay.testapp.testapp.dto.TransactionResult;
-import com.darakay.testapp.testapp.dto.UserTransaction;
+import com.darakay.testapp.testapp.dto.UserTransactionDto;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.entity.Transaction;
 import com.darakay.testapp.testapp.entity.TransactionType;
@@ -65,7 +65,7 @@ public class TransactionService {
         return new Transaction(source, target, author, sum, TransactionType.TRANSACTION);
     }
 
-    public List<UserTransaction> getUserTransactionsSortedBy(long uid, String order, Integer limit, Integer offset) throws UserNotFoundException {
+    public List<UserTransactionDto> getUserTransactionsSortedBy(long uid, String order, Integer limit, Integer offset) throws UserNotFoundException {
         User user = userService.getUserById(uid);
         if(limit == null)
             return getUserTransactionsSortedBy(uid, order);
@@ -73,17 +73,17 @@ public class TransactionService {
         return transactionRepository
                 .findTransactionsByUser(user, pageable)
                 .stream()
-                .map(UserTransaction::fromTransaction)
+                .map(UserTransactionDto::fromTransaction)
                 .collect(Collectors.toList());
     }
 
-    private List<UserTransaction> getUserTransactionsSortedBy(long uid, String order) throws UserNotFoundException {
+    private List<UserTransactionDto> getUserTransactionsSortedBy(long uid, String order) throws UserNotFoundException {
         User user = userService.getUserById(uid);
         Sort sort = new Sort(Sort.Direction.ASC, order);
         return transactionRepository
                 .findTransactionsByUser(user, sort)
                 .stream()
-                .map(UserTransaction::fromTransaction)
+                .map(UserTransactionDto::fromTransaction)
                 .collect(Collectors.toList());
     }
 
