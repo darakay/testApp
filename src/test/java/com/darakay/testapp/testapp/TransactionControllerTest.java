@@ -58,7 +58,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post(URL)
-                        .header("XXX-JwtToken", jwtTokenService.create(1000))
+                        .header("XXX-AccessToken", jwtTokenService.createAccessToken(1000, 0))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -85,7 +85,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post(URL)
-                                .header("XXX-JwtToken", jwtTokenService.create(3000))
+                                .header("XXX-AccessToken", jwtTokenService.createAccessToken(3000, 0))
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

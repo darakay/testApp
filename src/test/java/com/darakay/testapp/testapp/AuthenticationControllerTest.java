@@ -1,7 +1,9 @@
 package com.darakay.testapp.testapp;
 
 import com.darakay.testapp.testapp.dto.UserCreateRequest;
+import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.repos.UserRepository;
+import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,9 @@ public class AuthenticationControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private JwtTokenService jwtTokenService;
+
+    @Autowired
     private UserRepository userRepository;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -41,7 +46,8 @@ public class AuthenticationControllerTest {
                 .perform(get("/auth/login") .with(httpBasic("owner", "qwerty")))
                 .andReturn();
 
-        assertThat(result.getResponse().getHeader("XXX-JwtToken")).isNotNull();
+        assertThat(result.getResponse().getHeader("XXX-AccessToken")).isNotNull();
+        assertThat(result.getResponse().getHeader("XXX-RefreshToken")).isNotNull();
     }
 
     @Test
@@ -87,16 +93,16 @@ public class AuthenticationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
-                .andExpect(redirectedUrlPattern("/api/users/*"))
+                .andExpect(redirectedUrl("/auth/login"))
                 .andReturn();
 
-        long uid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
+        User created = userRepository.findByLogin("ivan").orElse(null);
 
-        assertThat(userRepository.existsById(uid)).isTrue();
-        assertThat(userRepository.findById(uid).get().getLogin()).isEqualTo("ivan");
-        assertThat(userRepository.findById(uid).get().getPassword()).isEqualTo("123");
+        assertThat(created).isNotNull();
+        assertThat(created.getLogin()).isEqualTo("ivan");
+        assertThat(created.getPassword()).isEqualTo("123");
 
-        userRepository.deleteById(uid);
+        userRepository.delete(created);
     }
 
     @Test
@@ -115,5 +121,52 @@ public class AuthenticationControllerTest {
                                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+    }
+
+    @Test
+    public void refreshAccessToken_ShouldRefreshToken_IfOldTokenIsValid() throws Exception {
+        MvcResult result = mockMvc
+                .perform(
+                        get("/auth/refresh")
+                                .header("XXX-AccessToken", jwtTokenService.create(1000))
+                               .header("XXX-RefreshToken", "123")
+                                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertThat(result.getResponse().getHeader("XXX-AccessToken")).isNotNull();
+        assertThat(result.getResponse().getHeader("XXX-RefreshToken")).isNotNull();
+        assertThat(userRepository.findById(1000).get().getRefreshToken()).isNotEqualTo("123");
+
+        userRepository.save(userRepository.findById(1000).get().setSecurityTokens("123", "2020-07-10 00:00:00"));
+    }
+
+    @Test
+    public void refreshAccessToken_ShouldReturn403_IfOldTokenIsInvalid() throws Exception {
+        mockMvc
+                .perform(
+                        get("/auth/refresh")
+                                .header("XXX-AccessToken", jwtTokenService.create(1000))
+                                .header("XXX-RefreshToken", "321")
+                )
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+    }
+
+    @Test
+    public void logout() throws Exception {
+        mockMvc
+                .perform(
+                        get("/auth/logout")
+                                .header("XXX-AccessToken", jwtTokenService.create(1000))
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        mockMvc.perform(
+                get("/api/accounts/1")
+                .header("XXX-AccessToken", jwtTokenService.create(1000)))
+                .andExpect(status().isForbidden());
+
     }
 }

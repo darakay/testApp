@@ -9,6 +9,8 @@
             <column name="last_name" value=""/>
             <column name="login" value="user4"/>
             <column name="password" value="qwerty"/>
+            <column name="refresh_token" value="123"/>
+            <column name="expires_at" type="timestamp" value="2020-07-10 00:00"/>
         </insert>
     </changeSet>
 

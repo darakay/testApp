@@ -4,6 +4,8 @@ CREATE TABLE `user` (
                         `last_name` varchar(50) NOT NULL,
                         `login` varchar(50) NOT NULL,
                         `password` varchar(20) NOT NULL,
+                        `refresh_token` varchar(20),
+                        `expires_at` timestamp,
                         PRIMARY KEY (`id`)
 );
 

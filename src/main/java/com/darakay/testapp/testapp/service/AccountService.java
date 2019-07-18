@@ -35,6 +35,7 @@ public class AccountService {
         this.tariffRepository = tariffRepository;
     }
 
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
     public Account createAccount(AccountCreateRequestDto requestDto) throws TariffNotFoundException {
         Tariff tariff = defineTariff(requestDto.getTariffName());
         User user = userService.getCurrentPrincipal();
@@ -45,7 +46,8 @@ public class AccountService {
         return saved;
     }
 
-    @PostAuthorize(value = "@accountAccessEvaluator.canGetAccountInfo(returnObject, principal.id)")
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
+    @PostAuthorize(value = "@accountAccessEvaluator.isAccountUser(returnObject, principal.id)")
     public Account getAccount(long id) throws AccountNotFoundException {
         return accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
     }
@@ -54,17 +56,21 @@ public class AccountService {
         return tariffRepository.findByName(tariffName).orElseThrow(TariffNotFoundException::new);
     }
 
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
+
+    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id) && " +
+            "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
     public void delete(@P(value = "accountId") long accountId) {
         accountRepository.deleteById(accountId);
     }
 
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id) " +
+            "&& @accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public List<User> getUsers(long accountId) throws AccountNotFoundException {
         return new ArrayList<>(this.getById(accountId).getUsers());
     }
 
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id) && " +
+            "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public List<Transaction> getTransactions(long accountId) throws AccountNotFoundException {
         Account account =  getById(accountId);
         List<Transaction> w = account.getWithdrawals();
@@ -73,7 +79,8 @@ public class AccountService {
     }
 
     @Transactional
-    @PreAuthorize(value = "@accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id) " +
+            "&& @accountAccessEvaluator.isAccountOwner(#accountId, principal.id)")
     public void deleteAccountUser(long accountId, long userId)
             throws AccountNotFoundException, UserNotFoundException {
         Account account = getById(accountId);
@@ -82,10 +89,12 @@ public class AccountService {
         accountRepository.save(account.removeUser(user));
     }
 
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
     public Account getById(long id) throws AccountNotFoundException {
         return accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
     }
 
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
     public Account save(Account account){
         return accountRepository.save(account);
     }

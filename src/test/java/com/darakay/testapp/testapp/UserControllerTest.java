@@ -1,12 +1,10 @@
 package com.darakay.testapp.testapp;
 
-import com.darakay.testapp.testapp.dto.UserCreateRequest;
 import com.darakay.testapp.testapp.dto.UserInfo;
 import com.darakay.testapp.testapp.dto.UserTransactionDto;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -14,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,10 +20,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -55,7 +50,7 @@ public class UserControllerTest {
         MvcResult result = mockMvc
                 .perform(
                     get(CONTROLLER_URI+"/2000")
-                    .header("XXX-JwtToken", jwtTokenService.create(2000)))
+                    .header("XXX-AccessToken", jwtTokenService.create(2000)))
                 .andExpect(status().isOk())
                 .andReturn();
         UserInfo actual = mapper.readValue(result.getResponse().getContentAsString(), UserInfo.class);
@@ -69,7 +64,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
@@ -89,7 +84,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=date";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
@@ -109,7 +104,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
@@ -129,7 +124,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum&limit=1&offset=2";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-JwtToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =

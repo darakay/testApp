@@ -19,9 +19,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests().antMatchers("/auth/logup","/auth/login").anonymous()
                 .and()
-                .authorizeRequests().antMatchers("/api/**").authenticated()
+                .authorizeRequests().antMatchers("/auth/refresh","/api/**").authenticated()
                 .and()
                 .addFilterBefore(filter(), RequestHeaderAuthenticationFilter.class)
+                .logout().logoutSuccessUrl("/auth/logout")
+                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ;
     }
@@ -30,7 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public RequestHeaderAuthenticationFilter filter() throws Exception {
         final RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
         filter.setExceptionIfHeaderMissing(false);
-        filter.setPrincipalRequestHeader("XXX-JwtToken");
+        filter.setPrincipalRequestHeader("XXX-AccessToken");
         filter.setAuthenticationManager(this.authenticationManager());
         return filter;
     }

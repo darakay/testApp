@@ -2,8 +2,11 @@ package com.darakay.testapp.testapp.entity;
 
 
 import lombok.Getter;
+import org.apache.commons.lang3.time.DateUtils;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +25,10 @@ public class User {
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     private Set<Account> ownAccounts;
+
+    private String refreshToken;
+
+    private Timestamp expiresAt;
 
     private String firstName;
 
@@ -49,5 +56,28 @@ public class User {
     public User deleteAccount(Account account) {
         accounts.remove(account);
         return this;
+    }
+
+    public User setSecurityTokens(String token, long expires) {
+        this.refreshToken = token;
+        this.expiresAt = new Timestamp(expires);
+        return this;
+    }
+
+    public User setSecurityTokens(String token, String expires) {
+        this.refreshToken = token;
+        this.expiresAt = Timestamp.valueOf(expires);
+        return this;
+    }
+
+    public User expire(){
+        this.expiresAt = new Timestamp(DateUtils.addMinutes(new Date() ,- 1).getTime());
+        return this;
+    }
+
+    public Long getExpiresAt(){
+        if(expiresAt == null)
+            return 0L;
+        return expiresAt.getTime();
     }
 }

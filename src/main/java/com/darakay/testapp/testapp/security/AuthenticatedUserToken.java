@@ -14,6 +14,7 @@ import java.util.Collections;
 @ToString
 public class AuthenticatedUserToken implements Authentication {
     private UserData userData;
+    private Object details;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -42,7 +43,6 @@ public class AuthenticatedUserToken implements Authentication {
 
     @Override
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-
     }
 
     @Override

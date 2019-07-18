@@ -33,11 +33,12 @@ public class JwtTokenAuthProvider implements AuthenticationProvider {
             User user = userService.getUserByIdOrNull(uid);
             if(user != null)
                 return new AuthenticatedUserToken(
-                        new UserData(user.getId(), user.getPassword(), user.getLogin()));
-            throw new BadCredentialsException("Invalid token");
+                        new UserData(user.getId(), user.getPassword(), user.getLogin()),
+                        authentication.getDetails());
         } catch (MalformedJwtException e){
             throw new BadCredentialsException("Invalid token");
         }
+        throw new BadCredentialsException("Invalid token");
     }
 
     @Override

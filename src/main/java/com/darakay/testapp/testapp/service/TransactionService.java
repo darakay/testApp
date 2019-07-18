@@ -13,6 +13,7 @@ import com.darakay.testapp.testapp.repos.TransactionRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class TransactionService {
         this.userService = userService;
     }
 
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
     synchronized public TransactionResult perform(TransactionRequest transactionRequest)
             throws AccountNotFoundException, UserNotFoundException {
         User user = userService.getCurrentPrincipal();
@@ -65,6 +67,7 @@ public class TransactionService {
         return new Transaction(source, target, author, sum, TransactionType.TRANSACTION);
     }
 
+    @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
     public List<UserTransactionDto> getUserTransactionsSortedBy(long uid, String order, Integer limit, Integer offset) throws UserNotFoundException {
         User user = userService.getUserById(uid);
         if(limit == null)
