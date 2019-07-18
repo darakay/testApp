@@ -4,7 +4,6 @@ import com.darakay.testapp.testapp.dto.UserCreateRequest;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
-import com.darakay.testapp.testapp.service.AuthenticationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +20,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -29,28 +29,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class AuthenticationControllerTest {
 
-
-    @Autowired
-    private MockMvc mockMvc;
-
     @Autowired
     private JwtTokenService jwtTokenService;
 
+    private ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private MockMvc mockMvc;
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AuthenticationService authenticationService;
-
-    private ObjectMapper mapper = new ObjectMapper();
-
     @Test
-    public void login_ShouldCreateCorrectJwtToken() throws Exception {
+    public void login_ShouldCreateCorrectAccessToken() throws Exception {
         MvcResult result = mockMvc
                 .perform(get("/auth/login") .with(httpBasic("owner", "qwerty")))
                 .andReturn();
 
-        assertThat(result.getResponse().getHeader("XXX-AccessToken")).isNotNull();
+        assertThat(result.getResponse().getHeader("XXX-AccessToken"))
+                .isNotNull();
         assertThat(result.getResponse().getHeader("XXX-RefreshToken")).isNotNull();
     }
 
@@ -76,14 +72,14 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void login_ShouldReturnBadRequest_WhenNoAuthorizationHeader() throws Exception {
+    public void login_ShouldReturnBadRequest_WhenThereIsNoAuthorizationHeader() throws Exception {
         mockMvc
                 .perform(get("/auth/login"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void logup_ShouldRedirectToCorrectUrlAndAddNewUserToDatabase() throws Exception {
+    public void logup_ShouldReturnCoorectRedirectUriAndAddNewUserToDatabase() throws Exception {
         UserCreateRequest req = UserCreateRequest.builder()
                 .firstName("Vanya")
                 .lastName("XXX")
@@ -91,7 +87,7 @@ public class AuthenticationControllerTest {
                 .password("123")
                 .build();
 
-        MvcResult result = mockMvc
+        mockMvc
                 .perform(
                         post("/auth/logup")
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -110,7 +106,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void logup_ShouldNotLogUpUser_WhenLoginAlreadyExist() throws Exception {
+    public void logup_ShouldReturnBadRequest_WhenLoginAlreadyExist() throws Exception {
         UserCreateRequest req = UserCreateRequest.builder()
                 .firstName("Vanya")
                 .lastName("XXX")
@@ -118,7 +114,7 @@ public class AuthenticationControllerTest {
                 .password("123")
                 .build();
 
-        MvcResult result = mockMvc
+        mockMvc
                 .perform(
                         post("/auth/logup")
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -132,7 +128,7 @@ public class AuthenticationControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         get("/auth/refresh")
-                                .header("XXX-AccessToken", jwtTokenService.create(1000))
+                                .header("XXX-AccessToken", createAccessToken(1000))
                                .header("XXX-RefreshToken", "123")
                                 )
                 .andExpect(status().isOk())
@@ -143,7 +139,6 @@ public class AuthenticationControllerTest {
         assertThat(userRepository.findById(1000).get().getRefreshToken()).isNotEqualTo("123");
 
         User user = userRepository.findById(1000).get().setSecurityTokens("123", "2020-07-10 00:00:00");
-
         userRepository.save(user);
     }
 
@@ -152,7 +147,7 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         get("/auth/refresh")
-                                .header("XXX-AccessToken", jwtTokenService.create(1000))
+                                .header("XXX-AccessToken", createAccessToken(1000))
                                 .header("XXX-RefreshToken", "321")
                 )
                 .andExpect(status().isUnauthorized())
@@ -164,15 +159,19 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         get("/auth/logout")
-                                .header("XXX-AccessToken", jwtTokenService.create(1000))
+                                .header("XXX-AccessToken",createAccessToken(1000))
                 )
                 .andExpect(status().isOk())
                 .andReturn();
 
         mockMvc.perform(
                 get("/api/accounts/1")
-                .header("XXX-AccessToken", jwtTokenService.create(1000)))
+                .header("XXX-AccessToken", createAccessToken(1000)))
                 .andExpect(status().isForbidden());
 
+    }
+
+    private String createAccessToken(long uid){
+        return jwtTokenService.createAccessToken(uid, 0);
     }
 }

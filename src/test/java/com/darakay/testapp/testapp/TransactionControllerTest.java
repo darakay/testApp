@@ -6,7 +6,6 @@ import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TransactionRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,14 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,6 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TransactionControllerTest {
 
     private static String URL = "/api/transactions";
+
+    @Autowired
+    private static TestUtils testUtils;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -58,7 +58,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post(URL)
-                        .header("XXX-AccessToken", jwtTokenService.createAccessToken(1000, 0))
+                        .header("XXX-AccessToken", testUtils.createAccessToken(1000))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -85,7 +85,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post(URL)
-                                .header("XXX-AccessToken", jwtTokenService.createAccessToken(3000, 0))
+                                .header("XXX-AccessToken",  testUtils.createAccessToken(1000))
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

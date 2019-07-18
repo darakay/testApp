@@ -12,7 +12,6 @@ import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.repos.TariffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;

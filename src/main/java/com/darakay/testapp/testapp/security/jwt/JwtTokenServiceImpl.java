@@ -21,9 +21,4 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     public String createRefreshToken() {
         return Long.toString(new Random().nextLong());
     }
-
-    @Override
-    public String create(long userId) {
-        return createAccessToken(userId, 0);
-    }
 }

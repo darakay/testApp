@@ -30,14 +30,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest {
 
     private static final String CONTROLLER_URI = "/api/users";
+    @Autowired
+    private  JwtTokenService jwtTokenService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private JwtTokenService jwtTokenService;
 
     @Autowired
     private UserRepository userRepository;
@@ -50,7 +50,7 @@ public class UserControllerTest {
         MvcResult result = mockMvc
                 .perform(
                     get(CONTROLLER_URI+"/2000")
-                    .header("XXX-AccessToken", jwtTokenService.create(2000)))
+                    .header("XXX-AccessToken", createAccessToken(2000)))
                 .andExpect(status().isOk())
                 .andReturn();
         UserInfo actual = mapper.readValue(result.getResponse().getContentAsString(), UserInfo.class);
@@ -64,7 +64,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", createAccessToken(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
@@ -84,7 +84,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=date";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", createAccessToken(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
@@ -104,7 +104,7 @@ public class UserControllerTest {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", createAccessToken(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
@@ -120,21 +120,24 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getTransactions_() throws Exception {
+    public void getTransactionsSortedByTransactionSumWithPagination() throws Exception {
         String uri = CONTROLLER_URI + "/2000/transaction?sortedBy=sum&limit=1&offset=2";
 
         MvcResult result = mockMvc
-                .perform(get(uri).header("XXX-AccessToken", jwtTokenService.create(2000)))
+                .perform(get(uri).header("XXX-AccessToken", createAccessToken(2000)))
                 .andReturn();
 
         List<UserTransactionDto> userTransactionDtos =
                 mapper.readValue(result.getResponse().getContentAsString(),
-                        new TypeReference<List<UserTransactionDto>>() {
-                        });
+                        new TypeReference<List<UserTransactionDto>>() {});
 
         assertThat(userTransactionDtos).asList().containsSequence(
                 UserTransactionDto.builder().accountId(2).otherId(1)
                         .sum(2000).date("2019-07-10 08:20:32").type("transaction").build());
 
+    }
+
+    private String createAccessToken(long uid){
+        return jwtTokenService.createAccessToken(uid, 0);
     }
 }

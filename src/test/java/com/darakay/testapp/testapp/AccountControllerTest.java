@@ -3,11 +3,13 @@ package com.darakay.testapp.testapp;
 import com.darakay.testapp.testapp.dto.AccountCreateRequestDto;
 import com.darakay.testapp.testapp.dto.AccountDto;
 import com.darakay.testapp.testapp.dto.TransactionDto;
+import com.darakay.testapp.testapp.dto.UserDto;
 import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.entity.Transaction;
+import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.repos.AccountRepository;
+import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
-import com.darakay.testapp.testapp.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,13 +39,14 @@ public class AccountControllerTest {
     private static String URL = "/api/accounts";
 
     @Autowired
+    private JwtTokenService jwtTokenService;
+
+
+    @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
-    private JwtTokenService tokenService;
-
-    @Autowired
-    private AccountService accountService;
+    private UserRepository userRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,8 +54,8 @@ public class AccountControllerTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void createAccount_ShouldAddCreatedAccountAtDatabaseAndReturnCorrectRedirectUri() throws Exception {
-        String token = tokenService.createAccessToken(1000L, 0);
+    public void createAccount_ShouldAddCreatedAccountToDatabaseAndReturnCorrectRedirectUri() throws Exception {
+        String token = createAccessToken(1000);
 
         AccountCreateRequestDto req = AccountCreateRequestDto.builder().tariffName("plain").build();
         MvcResult result = mockMvc.perform(post(URL)
@@ -60,34 +63,34 @@ public class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
-                .andExpect(redirectedUrlPattern("/api/accounts/*"))
+                .andExpect(redirectedUrlPattern("/api/accounts/{spring:[0-9]+}"))
                 .andReturn();
 
-        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
+        long aid = extractId(result.getResponse().getRedirectedUrl(), 3);
 
         assertThat(accountRepository.existsById(aid)).isTrue();
     }
 
     @Test
-    public void createAccount_ShouldAddCurrentPrincipalAsAccountOwner() throws Exception {
-        String token = tokenService.createAccessToken(1000L, 0);
+    public void createAccount_ShouldCreateAccountForPrincipal() throws Exception {
 
+        String token = createAccessToken(1000);
         AccountCreateRequestDto req = AccountCreateRequestDto.builder().tariffName("plain").build();
+
         MvcResult result = mockMvc.perform(post(URL)
                 .header("XXX-AccessToken", token)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(mapper.writeValueAsString(req)))
-                .andExpect(status().isCreated())
                 .andReturn();
 
-        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
+        long aid = extractId(result.getResponse().getRedirectedUrl(), 3);
 
         assertThat(accountRepository.findById(aid).get().getOwner().getId()).isEqualTo(1000);
     }
 
     @Test
-    public void getAccount_ShouldReturnCorrectAccount() throws Exception {
-        String token = tokenService.createAccessToken(1000L, 0);
+    public void getAccount_ShouldReturnCorrectAccountDto() throws Exception {
+        String token =createAccessToken(1000);
 
         AccountDto expected = AccountDto.builder().sum(50).tariffName("plain").ownerId(1000).build();
 
@@ -102,8 +105,8 @@ public class AccountControllerTest {
     }
 
     @Test
-    public void getAccount_ShouldNotReturnAccount_WhenPrincipalIsNotAccountOwnerOrUser() throws Exception {
-        String token = tokenService.createAccessToken(3000L, 0);
+    public void getAccount_DhouldReturn403Error_WhenPrincipalIsNotAccountOwner() throws Exception {
+        String token = createAccessToken(3000);
 
         mockMvc.perform(get(URL+"/2")
                 .header("XXX-AccessToken", token))
@@ -112,11 +115,10 @@ public class AccountControllerTest {
     }
 
     @Test
-    public void deleteAccount_ShouldDeleteAccountById() throws Exception {
-        String token = tokenService.createAccessToken(3000L, 0);
+    public void deleteAccount_ShouldDeleteAccount() throws Exception {
+        String token = createAccessToken(3000);
 
         AccountCreateRequestDto req = AccountCreateRequestDto.builder().tariffName("plain").build();
-
         MvcResult result = mockMvc.perform(post("/api/accounts")
                 .header("XXX-AccessToken", token)
         .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -127,33 +129,38 @@ public class AccountControllerTest {
                 .andExpect(status().isNoContent())
                 .andReturn();
 
-        long accountId = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
+        long accountId = extractId(result.getResponse().getRedirectedUrl(), 3);
 
         assertThat(accountRepository.existsById(accountId)).isTrue();
     }
 
     @Test
-    public void deleteAccount_ShouldNotDeleteAccount_WhenPrincipalIsNotAccountOwner() throws Exception {
-        String token = tokenService.createAccessToken(3000L, 0);
+    public void deleteAccount_ShouldReturn403_WhenPrincipalIsNotAccountOwner() throws Exception {
+        String token = createAccessToken(3000);
         mockMvc.perform(delete(URL+"/2")
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isForbidden());
 
+
+        assertThat(accountRepository.existsById(2L)).isTrue();
     }
 
     @Test
     public void getAccountUsers_ShouldReturnAccountUsers() throws Exception {
-       String token = tokenService.createAccessToken(1000L, 0);
-       int userCount = accountRepository.findById(1L).get().getUsers().size();
+       String token =createAccessToken(1000);
+       List<UserDto> expected = accountRepository
+               .findById(1L).get().getUsers()
+               .stream().map(UserDto::fromEntity)
+               .collect(Collectors.toList());
        mockMvc.perform(get(URL+"/1/users")
                .header("XXX-AccessToken", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(userCount)));
+                .andExpect(jsonPath("$", hasSize(expected.size())));
     }
 
     @Test
-    public void getAccountUsers_ShouldNotReturnUsers_WhenPrincipalIsNotAccountOwner() throws Exception {
-        String token = tokenService.createAccessToken(3000L, 0);
+    public void getAccountUsers_ShouldReturn403Error_WhenPrincipalIsNotAccountOwner() throws Exception {
+        String token = createAccessToken(3000);
         mockMvc.perform(get(URL+"/1/users")
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isForbidden());
@@ -161,18 +168,19 @@ public class AccountControllerTest {
 
     @Test
     public void deleteAccountUser_ShouldDeleteAccountUser() throws Exception {
-        String token = tokenService.createAccessToken(1000L, 0);
+        String token = createAccessToken(1000);
         mockMvc.perform(delete(URL+"/1/users/4000")
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isNoContent());
 
         Account account = accountRepository.findById(1L).get();
-        assertThat(account.getUsers().size()).isEqualTo(1);
+        User deleted = userRepository.findById(4000).get();
+        assertThat(account.getUsers().contains(deleted)).isFalse();
     }
 
     @Test
-    public void deleteAccountUser_ShouldNotDeleteAccountUser_WhenPrincipalIsNotAccountOwner() throws Exception {
-        String token = tokenService.createAccessToken(3000L, 0);
+    public void deleteAccountUser_Shouldreturn403_WhenPrincipalIsNotAccountOwner() throws Exception {
+        String token = createAccessToken(3000);
         mockMvc.perform(delete(URL+"/1/users/4000")
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isForbidden());
@@ -180,7 +188,7 @@ public class AccountControllerTest {
 
     @Test
     public void getAccountTransaction_ShouldReturnAllAccountTransactions() throws Exception {
-        String token = tokenService.createAccessToken(1000L, 0);
+        String token =createAccessToken(1000);
         List<Transaction> deposits = accountRepository.findById(1L).get().getDeposits();
         List<Transaction> trans = accountRepository.findById(1L).get().getWithdrawals();
         trans.addAll(deposits);
@@ -193,10 +201,18 @@ public class AccountControllerTest {
     }
 
     @Test
-    public void getAccountTransaction_ShouldNotReturnAllAccountTransactions_WhenUserIsNotAccountOwner() throws Exception {
-        String token = tokenService.createAccessToken(3000L, 0);
+    public void getAccountTransaction_Shouldreturn403Error_WhenPrincipalIsNotAccountOwner() throws Exception {
+        String token = createAccessToken(3000);
         mockMvc.perform(get(URL+"/1/transactions")
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isForbidden());
+    }
+
+    private String createAccessToken(long uid){
+        return jwtTokenService.createAccessToken(uid, 0);
+    }
+
+    private long extractId(String path, int pos){
+        return Long.valueOf(path.split("/")[pos]);
     }
 }
