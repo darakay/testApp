@@ -23,12 +23,12 @@ public class AuthenticatedUserToken implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return userData.getPassword();
+        return userData;
     }
 
     @Override
     public Object getDetails() {
-        return null;
+        return details;
     }
 
     @Override
@@ -47,6 +47,6 @@ public class AuthenticatedUserToken implements Authentication {
 
     @Override
     public String getName() {
-        return userData.getUsername();
+        return "";
     }
 }

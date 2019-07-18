@@ -16,12 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtTokenAuthProvider implements AuthenticationProvider {
 
-    private final UserService userService;
     private final JwtParser jwtParser;
 
-    public JwtTokenAuthProvider(UserService userService) {
+    public JwtTokenAuthProvider() {
         jwtParser = Jwts.parser().setSigningKey("secretKey");
-        this.userService = userService;
     }
 
     @Override
@@ -30,15 +28,10 @@ public class JwtTokenAuthProvider implements AuthenticationProvider {
         try {
             Claims claims = jwtParser.parseClaimsJws(token).getBody();
             long uid = claims.get("id", Long.class);
-            User user = userService.getUserByIdOrNull(uid);
-            if(user != null)
-                return new AuthenticatedUserToken(
-                        new UserData(user.getId(), user.getPassword(), user.getLogin()),
-                        authentication.getDetails());
+                return new AuthenticatedUserToken(new UserData(uid), authentication.getDetails());
         } catch (MalformedJwtException e){
             throw new BadCredentialsException("Invalid token");
         }
-        throw new BadCredentialsException("Invalid token");
     }
 
     @Override

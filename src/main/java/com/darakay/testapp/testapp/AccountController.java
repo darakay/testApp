@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity createAccount(@RequestBody AccountCreateRequestDto requestDto)
+    public ResponseEntity createAccount(@RequestBody AccountCreateRequestDto requestDto, Principal principal)
             throws TariffNotFoundException {
 
         Account created = accountService.createAccount(requestDto);

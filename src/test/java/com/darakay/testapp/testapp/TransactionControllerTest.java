@@ -107,6 +107,4 @@ public class TransactionControllerTest {
         accountRepository.save(src);
         accountRepository.save(tgt);
     }
-
-
 }
