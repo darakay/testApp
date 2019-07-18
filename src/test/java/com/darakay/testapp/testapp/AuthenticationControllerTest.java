@@ -4,6 +4,7 @@ import com.darakay.testapp.testapp.dto.UserCreateRequest;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
+import com.darakay.testapp.testapp.service.AuthenticationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,9 @@ public class AuthenticationControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -138,7 +142,9 @@ public class AuthenticationControllerTest {
         assertThat(result.getResponse().getHeader("XXX-RefreshToken")).isNotNull();
         assertThat(userRepository.findById(1000).get().getRefreshToken()).isNotEqualTo("123");
 
-        userRepository.save(userRepository.findById(1000).get().setSecurityTokens("123", "2020-07-10 00:00:00"));
+        User user = userRepository.findById(1000).get().setSecurityTokens("123", "2020-07-10 00:00:00");
+
+        userRepository.save(user);
     }
 
     @Test

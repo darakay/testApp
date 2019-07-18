@@ -34,9 +34,9 @@ public class TransactionService {
     }
 
     @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
-    synchronized public TransactionResult perform(TransactionRequest transactionRequest)
+    synchronized public TransactionResult perform(TransactionRequest transactionRequest, long uid)
             throws AccountNotFoundException, UserNotFoundException {
-        User user = userService.getCurrentPrincipal();
+        User user = userService.getUserById(uid);
         Account source = accountService.getById(transactionRequest.getSourceAccountId());
         Account target = accountService.getById(transactionRequest.getTargetAccountId());
         if(!isCorrectSum(user, transactionRequest.getSum(), source))

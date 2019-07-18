@@ -3,11 +3,8 @@ package com.darakay.testapp.testapp.service;
 import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
-import com.darakay.testapp.testapp.security.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,17 +26,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-
-    public User getCurrentPrincipal(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserData principal = (UserData) auth.getPrincipal();
-        return userRepository.findById(principal.getId()).get();
-    }
-
-    public User getUserByIdOrNull(long id){
-        return userRepository.findById(id).orElse(null);
-    }
-
     public Long getExpiresForUser(long principalId) throws UserNotFoundException {
        return userRepository
                .findById(principalId)
@@ -47,8 +33,8 @@ public class UserService {
                .getExpiresAt();
     }
 
-    public void expireCurrentPrincipal(){
-        User user = getCurrentPrincipal();
+    public void expireCurrentPrincipal(long uid) throws UserNotFoundException {
+        User user = getUserById(uid);
         userRepository.save(user.expire());
     }
 }

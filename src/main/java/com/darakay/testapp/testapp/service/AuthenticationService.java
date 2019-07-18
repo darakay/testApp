@@ -5,6 +5,7 @@ import com.darakay.testapp.testapp.entity.User;
 import com.darakay.testapp.testapp.exception.BadCredentialsException;
 import com.darakay.testapp.testapp.exception.BadRequestException;
 import com.darakay.testapp.testapp.exception.InvalidAuthorizationHeader;
+import com.darakay.testapp.testapp.exception.UserNotFoundException;
 import com.darakay.testapp.testapp.repos.UserRepository;
 import com.darakay.testapp.testapp.security.SecurityTokens;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
@@ -43,8 +44,8 @@ public class AuthenticationService {
                 new User(request.getFirstName(), request.getLastName(), request.getLogin(), request.getPassword()));
     }
 
-    public SecurityTokens refreshTokens(String oldRefreshToken){
-        User principal = userService.getCurrentPrincipal();
+    public SecurityTokens refreshTokens(String oldRefreshToken, long uid) throws UserNotFoundException {
+        User principal = userService.getUserById(uid);
         if(principal.getRefreshToken().equals(oldRefreshToken))
             return createTokens(principal);
         return createFailSecurityTokens();
@@ -77,7 +78,7 @@ public class AuthenticationService {
     }
 
     @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
-    public void logout() {
-        userService.expireCurrentPrincipal();
+    public void logout(long uid) throws UserNotFoundException {
+        userService.expireCurrentPrincipal(uid);
     }
 }

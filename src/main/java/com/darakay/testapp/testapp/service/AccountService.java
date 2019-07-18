@@ -36,9 +36,9 @@ public class AccountService {
     }
 
     @PreAuthorize(value = "@accountAccessEvaluator.accessTokenIsValid(principal.id)")
-    public Account createAccount(AccountCreateRequestDto requestDto) throws TariffNotFoundException {
+    public Account createAccount(AccountCreateRequestDto requestDto, long uid) throws TariffNotFoundException, UserNotFoundException {
         Tariff tariff = defineTariff(requestDto.getTariffName());
-        User user = userService.getCurrentPrincipal();
+        User user = userService.getUserById(uid);
         Account saved = accountRepository.save(new Account(0, tariff, user));
         User owner = userService.save(user);
         owner.addAccounts(saved);

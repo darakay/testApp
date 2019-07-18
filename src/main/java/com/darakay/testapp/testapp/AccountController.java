@@ -8,10 +8,11 @@ import com.darakay.testapp.testapp.entity.Account;
 import com.darakay.testapp.testapp.exception.AccountNotFoundException;
 import com.darakay.testapp.testapp.exception.TariffNotFoundException;
 import com.darakay.testapp.testapp.exception.UserNotFoundException;
+import com.darakay.testapp.testapp.security.UserData;
 import com.darakay.testapp.testapp.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -33,9 +34,9 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity createAccount(@RequestBody AccountCreateRequestDto requestDto, Principal principal)
-            throws TariffNotFoundException {
-
-        Account created = accountService.createAccount(requestDto);
+            throws TariffNotFoundException, UserNotFoundException {
+        UserData userData = (UserData) ((Authentication)principal).getCredentials();
+        Account created = accountService.createAccount(requestDto, userData.getId());
         return ResponseEntity.created(URI.create("/api/accounts/" + created.getId())).build();
     }
 

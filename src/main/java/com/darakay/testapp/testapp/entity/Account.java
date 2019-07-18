@@ -30,10 +30,10 @@ public class Account {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Transaction> withdrawals = new HashSet<>();
 
-    @OneToMany(mappedBy = "target", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "target", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Transaction> deposits = new HashSet<>();
 
     public Account(double initialSum, Tariff tariff, User owner) {

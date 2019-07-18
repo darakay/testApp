@@ -13,5 +13,4 @@ import java.util.Collections;
 @AllArgsConstructor
 public class UserData {
     private long id;
-
 }

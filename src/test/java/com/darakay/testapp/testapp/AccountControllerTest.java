@@ -2,9 +2,12 @@ package com.darakay.testapp.testapp;
 
 import com.darakay.testapp.testapp.dto.AccountCreateRequestDto;
 import com.darakay.testapp.testapp.dto.AccountDto;
+import com.darakay.testapp.testapp.dto.TransactionDto;
 import com.darakay.testapp.testapp.entity.Account;
+import com.darakay.testapp.testapp.entity.Transaction;
 import com.darakay.testapp.testapp.repos.AccountRepository;
 import com.darakay.testapp.testapp.security.jwt.JwtTokenService;
+import com.darakay.testapp.testapp.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +20,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,6 +42,9 @@ public class AccountControllerTest {
 
     @Autowired
     private JwtTokenService tokenService;
+
+    @Autowired
+    private AccountService accountService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -172,10 +182,14 @@ public class AccountControllerTest {
     @Test
     public void getAccountTransaction_ShouldReturnAllAccountTransactions() throws Exception {
         String token = tokenService.createAccessToken(1000L, 0);
+        List<Transaction> deposits = accountRepository.findById(1L).get().getDeposits();
+        List<Transaction> trans = accountRepository.findById(1L).get().getWithdrawals();
+        trans.addAll(deposits);
+        List<TransactionDto> expected = trans.stream().map(TransactionDto::fromEntity).collect(Collectors.toList());
         mockMvc.perform(get(URL+"/1/transactions")
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(5)))
+                .andExpect(jsonPath("$", hasSize(expected.size())))
                 .andReturn();
     }
 
