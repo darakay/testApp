@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        id:
+          new_generator_mappings: false
+  profiles:
+    active: test
+  datasource:
+    url: jdbc:tc:mysql://0.0.0.0:33060/test
+    username: root
+    password: password
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.xml
+    contexts: test

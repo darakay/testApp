@@ -8,23 +8,10 @@ spring:
           new_generator_mappings: false
   liquibase:
     change-log: classpath:db/changelog/changelog-master.xml
----
-spring:
-  profiles: dev
   datasource:
-      url: jdbc:mysql://localhost:3306/test
-      username: root
-      password: qwerty
-      driver-class-name: com.mysql.cj.jdbc.Driver
-
----
-spring:
-  profiles: test
-  datasource:
-    url: jdbc:mysql://0.0.0.0:33060/test
+    url: jdbc:mysql://localhost:3306/test
     username: root
-    password: password
+    password: qwerty
     driver-class-name: com.mysql.cj.jdbc.Driver
-  liquibase:
-    contexts: test
+
 
