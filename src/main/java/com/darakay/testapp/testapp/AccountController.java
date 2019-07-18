@@ -35,7 +35,7 @@ public class AccountController {
             throws TariffNotFoundException {
 
         Account created = accountService.createAccount(requestDto);
-        return ResponseEntity.created(URI.create("/accounts/" + created.getId())).build();
+        return ResponseEntity.created(URI.create("/api/accounts/" + created.getId())).build();
     }
 
     @GetMapping("/{accountId}")

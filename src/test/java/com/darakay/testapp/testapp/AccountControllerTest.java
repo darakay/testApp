@@ -20,8 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -52,9 +51,10 @@ public class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
+                .andExpect(redirectedUrlPattern("/api/accounts/*"))
                 .andReturn();
 
-        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[2]);
+        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
 
         assertThat(accountRepository.existsById(aid)).isTrue();
     }
@@ -71,7 +71,7 @@ public class AccountControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[2]);
+        long aid = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
 
         assertThat(accountRepository.findById(aid).get().getOwner().getId()).isEqualTo(1000);
     }
@@ -105,12 +105,22 @@ public class AccountControllerTest {
     @Test
     public void deleteAccount_ShouldDeleteAccountById() throws Exception {
         String token = tokenService.createAccessToken(3000L, 0);
-        mockMvc.perform(delete(URL+"/3")
+
+        AccountCreateRequestDto req = AccountCreateRequestDto.builder().tariffName("plain").build();
+
+        MvcResult result = mockMvc.perform(post("/api/accounts")
+                .header("XXX-AccessToken", token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(mapper.writeValueAsString(req))).andReturn();
+
+        mockMvc.perform(delete(result.getResponse().getRedirectedUrl())
                 .header("XXX-AccessToken", token))
                 .andExpect(status().isNoContent())
                 .andReturn();
 
-        assertThat(accountRepository.existsById(3L)).isFalse();
+        long accountId = Long.valueOf(result.getResponse().getRedirectedUrl().split("/")[3]);
+
+        assertThat(accountRepository.existsById(accountId)).isTrue();
     }
 
     @Test
@@ -125,10 +135,11 @@ public class AccountControllerTest {
     @Test
     public void getAccountUsers_ShouldReturnAccountUsers() throws Exception {
        String token = tokenService.createAccessToken(1000L, 0);
+       int userCount = accountRepository.findById(1L).get().getUsers().size();
        mockMvc.perform(get(URL+"/1/users")
                .header("XXX-AccessToken", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+                .andExpect(jsonPath("$", hasSize(userCount)));
     }
 
     @Test
