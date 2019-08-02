@@ -30,8 +30,6 @@ public class TransactionControllerTest {
 
     private static String URL = "/api/transactions";
 
-    @Autowired
-    private static TestUtils testUtils;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -58,7 +56,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post(URL)
-                        .header("XXX-AccessToken", testUtils.createAccessToken(1000))
+                        .header("XXX-AccessToken", createAccessToken(1000))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -85,7 +83,7 @@ public class TransactionControllerTest {
         MvcResult result = mockMvc
                 .perform(
                         post(URL)
-                                .header("XXX-AccessToken",  testUtils.createAccessToken(1000))
+                                .header("XXX-AccessToken",  createAccessToken(1000))
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                                 .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -106,5 +104,9 @@ public class TransactionControllerTest {
         Account tgt = accountRepository.findById(targetId).get().changeSum(-diff);
         accountRepository.save(src);
         accountRepository.save(tgt);
+    }
+
+    private String createAccessToken(long uid){
+        return jwtTokenService.createAccessToken(uid, 0);
     }
 }
