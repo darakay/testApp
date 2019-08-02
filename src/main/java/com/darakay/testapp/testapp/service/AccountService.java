@@ -97,4 +97,8 @@ public class AccountService {
     public Account save(Account account){
         return accountRepository.save(account);
     }
+
+    public boolean existById(String accountId){
+        return accountRepository.existsById(Long.valueOf(accountId));
+    }
 }
